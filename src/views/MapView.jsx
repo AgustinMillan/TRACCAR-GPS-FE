@@ -56,7 +56,13 @@ function MapView() {
           );
           if (activeBikes.length > 0) {
             const bikeIds = activeBikes.map((bike) => bike.id);
+
             const bikePositions = await getMultipleMotorBikePositions(bikeIds);
+            bikePositions.forEach((pos, index) => {
+              if (!pos.latitude || !pos.longitude) {
+                bikePositions.splice(index, 1); // Eliminar posición inválida del array
+              }
+            });
             setPositions(bikePositions);
           }
         } catch (err) {
@@ -88,6 +94,14 @@ function MapView() {
       if (activeBikes.length > 0) {
         const bikeIds = activeBikes.map((bike) => bike.id);
         const bikePositions = await getMultipleMotorBikePositions(bikeIds);
+        bikePositions.forEach((pos, index) => {
+          if (!pos.latitude || !pos.longitude) {
+            alert(
+              `La moto con ID ${pos.id} tiene datos de posición inválidos. Verifique el dispositivo GPS.`,
+            );
+            bikePositions.splice(index, 1); // Eliminar posición inválida del array
+          }
+        });
         setPositions(bikePositions);
       }
     } catch (err) {
