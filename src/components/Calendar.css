@@ -1,0 +1,220 @@
+.calendario-pagos {
+	background: #fff;
+	border-radius: 16px;
+	box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+	padding: 32px 24px 24px 24px;
+	max-width: 480px;
+	margin: 40px auto;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+@media (max-width: 600px) {
+	.calendario-pagos {
+		max-width: 98vw;
+		padding: 24px 8px 16px 8px;
+		margin: 16px auto;
+		border-radius: 10px;
+	}
+}
+
+/* Close button */
+.calendario-pagos button {
+	background: #dc2626;
+	color: #fff;
+	border: none;
+	border-radius: 75%;
+	width: 60px;
+	height: 60px;
+	font-size: 1.2rem;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(220,38,38,0.12);
+	/* z-index: 10; */
+	transition: background 0.2s;
+}
+.calendario-pagos button:hover {
+	background: #b91c1c;
+}
+
+@media (max-width: 600px) {
+	.calendario-pagos button {
+		top: 4px;
+		right: 4px;
+		width: 28px;
+		height: 28px;
+		font-size: 1rem;
+	}
+}
+
+/* FullCalendar overrides */
+.fc .fc-toolbar {
+	margin-bottom: 16px;
+	font-family: inherit;
+}
+.fc .fc-button {
+	background: #2563eb;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 6px 16px;
+	font-size: 1rem;
+	margin: 0 4px;
+	box-shadow: 0 2px 8px rgba(37,99,235,0.12);
+	transition: background 0.2s;
+}
+.fc .fc-button:hover {
+	background: #1d4ed8;
+}
+.fc .fc-daygrid-day {
+	font-family: inherit;
+}
+.fc .fc-daygrid-event {
+	border-radius: 6px;
+	font-size: 0.95rem;
+	font-weight: 500;
+	padding: 2px 6px;
+	border: none;
+}
+.fc .fc-event-title {
+	text-transform: capitalize;
+}
+
+@media (max-width: 600px) {
+	.fc .fc-toolbar {
+		flex-direction: column;
+		gap: 6px;
+		font-size: 0.95rem;
+	}
+	.fc .fc-button {
+		padding: 4px 10px;
+		font-size: 0.95rem;
+	}
+	.fc .fc-daygrid-event {
+		font-size: 0.9rem;
+		padding: 1px 4px;
+	}
+}
+
+/* Estado legend */
+.calendario-pagos-legend {
+	display: flex;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+.calendario-pagos-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.98rem;
+}
+.calendario-pagos-legend-color {
+	width: 16px;
+	height: 16px;
+	border-radius: 4px;
+	display: inline-block;
+}
+.calendario-pagos-legend-color.pagado {
+	background: #16a34a;
+}
+.calendario-pagos-legend-color.adeudado {
+	background: #dc2626;
+}
+.calendario-pagos-legend-color.dia-libre {
+	background: #9ca3af;
+}
+/* CalendarioPagos container */
+.calendario-pagos {
+	background: #fff;
+	border-radius: 16px;
+	box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+	padding: 32px 24px 24px 24px;
+	max-width: 480px;
+	margin: 40px auto;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+/* Close button */
+/* .calendario-pagos button {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	background: #dc2626;
+	color: #fff;
+	border: none;
+	border-radius: 50%;
+	width: 32px;
+	height: 32px;
+	font-size: 1.2rem;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(220,38,38,0.12);
+	transition: background 0.2s;
+} */
+.calendario-pagos button:hover {
+	background: #b91c1c;
+}
+
+/* FullCalendar overrides */
+.fc .fc-toolbar {
+	margin-bottom: 16px;
+	font-family: inherit;
+}
+.fc .fc-button {
+	background: #2563eb;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 6px 16px;
+	font-size: 1rem;
+	margin: 0 4px;
+	box-shadow: 0 2px 8px rgba(37,99,235,0.12);
+	transition: background 0.2s;
+}
+.fc .fc-button:hover {
+	background: #1d4ed8;
+}
+.fc .fc-daygrid-day {
+	font-family: inherit;
+}
+.fc .fc-daygrid-event {
+	border-radius: 6px;
+	font-size: 0.95rem;
+	font-weight: 500;
+	padding: 2px 6px;
+	border: none;
+}
+.fc .fc-event-title {
+	text-transform: capitalize;
+}
+
+/* Estado legend */
+.calendario-pagos-legend {
+	display: flex;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+.calendario-pagos-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.98rem;
+}
+.calendario-pagos-legend-color {
+	width: 16px;
+	height: 16px;
+	border-radius: 4px;
+	display: inline-block;
+}
+.calendario-pagos-legend-color.pagado {
+	background: #16a34a;
+}
+.calendario-pagos-legend-color.adeudado {
+	background: #dc2626;
+}
+.calendario-pagos-legend-color.dia-libre {
+	background: #9ca3af;
+}

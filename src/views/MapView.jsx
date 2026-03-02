@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Icon } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -41,18 +41,38 @@ function MapView() {
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const motorBikesRef = useRef([]);
 
   // Cargar motos y posiciones
   useEffect(() => {
     loadMotorBikesAndPositions();
 
-    // Actualizar posiciones cada 5 segundos
+    // Actualizar posiciones cada 10 segundos (leer estado más reciente desde ref)
     const interval = setInterval(() => {
-      updatePositions();
-    }, 5000);
+      (async () => {
+        try {
+          const activeBikes = motorBikesRef.current.filter(
+            (bike) => bike.isActive,
+          );
+          if (activeBikes.length > 0) {
+            const bikeIds = activeBikes.map((bike) => bike.id);
+            const bikePositions = await getMultipleMotorBikePositions(bikeIds);
+            setPositions(bikePositions);
+          }
+        } catch (err) {
+          console.error("Error al actualizar posiciones:", err);
+        }
+      })();
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
+
+  // Mantener una referencia actualizada de motorBikes para que el intervalo
+  // lea siempre el estado más reciente (evita el problema del closure)
+  useEffect(() => {
+    motorBikesRef.current = motorBikes;
+  }, [motorBikes]);
 
   const loadMotorBikesAndPositions = async () => {
     try {
@@ -75,19 +95,6 @@ function MapView() {
       setError(err.message || "Error al cargar las motos");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const updatePositions = async () => {
-    try {
-      const activeBikes = motorBikes.filter((bike) => bike.isActive);
-      if (activeBikes.length > 0) {
-        const bikeIds = activeBikes.map((bike) => bike.id);
-        const bikePositions = await getMultipleMotorBikePositions(bikeIds);
-        setPositions(bikePositions);
-      }
-    } catch (err) {
-      console.error("Error al actualizar posiciones:", err);
     }
   };
 
