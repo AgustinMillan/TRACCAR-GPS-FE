@@ -113,6 +113,7 @@ function BalanceView() {
             : null,
           amount: Number(transactionPaymentData.amount),
           type,
+          date: transactionPaymentData.date,
           description: transactionPaymentData.description,
         });
         setShowTransactionFormPayment(false);
@@ -121,6 +122,7 @@ function BalanceView() {
           motorBikeId: "",
           amount: "",
           type: "ingreso",
+          date: new Date().toISOString().slice(0, 10),
           description: "",
         });
         await loadData();
@@ -133,6 +135,7 @@ function BalanceView() {
           accountId: Number(transactionBillData.accountId),
           amount: Number(transactionBillData.amount),
           type,
+          date: transactionBillData.date,
           description: transactionBillData.description,
         });
         setShowTransactionFormBill(false);
@@ -140,6 +143,7 @@ function BalanceView() {
           accountId: "",
           amount: "",
           type: "egreso",
+          date: new Date().toISOString().slice(0, 10),
           description: "",
         });
         await loadData();
@@ -256,14 +260,7 @@ function BalanceView() {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("es-AR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return dateString;
   };
 
   return (
