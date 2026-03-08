@@ -22,6 +22,10 @@ function BalanceView() {
     description: "",
   });
   const [submittingEditPayment, setSubmittingEditPayment] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalpages, setTotalPages] = useState(0);
+  const [pageB, setPageB] = useState(1);
+  const [totalpagesB, setTotalPagesB] = useState(0);
 
   const handleEditPayment = (payment) => {
     setEditPaymentId(payment.id);
@@ -200,7 +204,7 @@ function BalanceView() {
       .catch((err) => {
         console.error("Error al cargar datos:", err);
       });
-  }, []);
+  }, [page]);
 
   const loadData = async () => {
     try {
@@ -211,8 +215,8 @@ function BalanceView() {
       const [accountsData, paymentsData, billsData, bikesData] =
         await Promise.all([
           getAllAccounts(),
-          getAllPayments(),
-          getAllBills(),
+          getAllPayments(page, setTotalPages),
+          getAllBills(pageB, setTotalPagesB),
           getAllMotorBikes(),
         ]);
       setAccounts(accountsData);
@@ -626,6 +630,25 @@ function BalanceView() {
                     ))}
                   </tbody>
                 </table>
+                <div>
+                  <button
+                    onClick={() => {
+                      if (page > 1) setPage(page - 1);
+                    }}
+                  >
+                    -
+                  </button>
+                  <span style={{ margin: "0 8px", color: "#555" }}>
+                    {page} / {totalpages}
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (page < totalpages) setPage(page + 1);
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             )}
           </section>
@@ -978,6 +1001,25 @@ function BalanceView() {
                     ))}
                   </tbody>
                 </table>
+                <div>
+                  <button
+                    onClick={() => {
+                      if (pageB > 1) setPageB(pageB - 1);
+                    }}
+                  >
+                    -
+                  </button>
+                  <span style={{ margin: "0 8px", color: "#555" }}>
+                    {pageB} / {totalpagesB}
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (pageB < totalpagesB) setPageB(pageB + 1);
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             )}
           </section>

@@ -109,14 +109,16 @@ export const createAccount = async (accountData) => {
  * Obtiene todos los pagos/transacciones
  * @returns {Promise<Array>} Lista de pagos
  */
-export const getAllPayments = async () => {
+export const getAllPayments = async (page = 1, setTotalPages) => {
   try {
-    const url = getApiUrl(BALANCE_ENDPOINTS.PAYMENTS) + "?type=ingreso";
+    const url =
+      getApiUrl(BALANCE_ENDPOINTS.PAYMENTS) + "?type=ingreso&page=" + page;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Error al obtener pagos: ${response.statusText}`);
     }
     const data = await response.json();
+    setTotalPages(Math.ceil(data.count / 10));
     return data.data || [];
   } catch (error) {
     console.error("Error en getAllPayments:", error);
@@ -128,14 +130,16 @@ export const getAllPayments = async () => {
  * Obtiene todos los gastos/transacciones
  * @returns {Promise<Array>} Lista de gastos
  */
-export const getAllBills = async () => {
+export const getAllBills = async (page = 1, setTotal) => {
   try {
-    const url = getApiUrl(BALANCE_ENDPOINTS.PAYMENTS) + "?type=egreso";
+    const url =
+      getApiUrl(BALANCE_ENDPOINTS.PAYMENTS) + "?type=egreso&page=" + page;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Error al obtener pagos: ${response.statusText}`);
     }
     const data = await response.json();
+    setTotal(Math.ceil(data.count / 10));
     return data.data || [];
   } catch (error) {
     console.error("Error en getAllPayments:", error);
