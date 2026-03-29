@@ -411,6 +411,115 @@
   border: 1px solid #eee;
 }
 
+/* Filters UI */
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e0e7ef;
+  margin-bottom: 1.5rem;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 150px;
+  flex: 1;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+  background: #fff;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.filter-actions {
+  flex: 0 0 auto;
+}
+
+.btn-filter {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-filter:hover {
+  background: #2563eb;
+}
+
+/* Specific Transaction Buttons */
+.btn-income {
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+.btn-income:hover {
+  background: #059669;
+}
+
+.btn-expense {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+.btn-expense:hover {
+  background: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+  .filters-container {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  .filter-group label {
+    color: #94a3b8;
+  }
+  .filter-group select,
+  .filter-group input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+}
+
 /* Table Styles */
 .payments-table-wrapper {
   background: white;

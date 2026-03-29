@@ -6,7 +6,6 @@ import {
   updateAccount,
   createPayment,
   updatePayment,
-  getAllBills,
 } from "../services/balanceService";
 import { getAllMotorBikes, getMotorBikeDebts } from "../services/motorBikeService";
 import CalendarioPagos from "../components/Calendar";
@@ -25,8 +24,14 @@ function BalanceView() {
   const [submittingEditPayment, setSubmittingEditPayment] = useState(false);
   const [page, setPage] = useState(1);
   const [totalpages, setTotalPages] = useState(0);
-  const [pageB, setPageB] = useState(1);
-  const [totalpagesB, setTotalPagesB] = useState(0);
+
+  // States for filters
+  const [filters, setFilters] = useState({
+    motorBikeId: "",
+    type: "ingreso", // empty = "Todos"
+    startDate: "",
+    endDate: "",
+  });
 
   // States for calendar interaction after payment
   const [showPromptCalendar, setShowPromptCalendar] = useState(false);
@@ -177,7 +182,6 @@ function BalanceView() {
 
   const [accounts, setAccounts] = useState([]);
   const [payments, setPayments] = useState([]);
-  const [bills, setBills] = useState([]);
   const [motorBikes, setMotorBikes] = useState([]);
   const [debtsReport, setDebtsReport] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -229,11 +233,10 @@ function BalanceView() {
       setError(null);
 
       console.log("Cargando cuentas, pagos y motos...");
-      const [accountsData, paymentsData, billsData, bikesData, debtsData] =
+      const [accountsData, paymentsData, bikesData, debtsData] =
         await Promise.all([
           getAllAccounts(),
-          getAllPayments(page, setTotalPages),
-          getAllBills(pageB, setTotalPagesB),
+          getAllPayments(page, setTotalPages, filters),
           getAllMotorBikes(),
           getMotorBikeDebts().catch(err => {
             console.error("Error al cargar deudas:", err);
@@ -242,7 +245,6 @@ function BalanceView() {
         ]);
       setAccounts(accountsData);
       setPayments(paymentsData);
-      setBills(billsData);
       setMotorBikes(bikesData);
       setDebtsReport(debtsData.data || []);
       console.log("Cuentas cargadas:", accountsData);
@@ -486,7 +488,41 @@ function BalanceView() {
 
           {/* Sección de Pagos (Tabla) */}
           <section className="payments-section">
-            <h2>Listado de Pagos</h2>
+            <h2>Historial de Transacciones</h2>
+
+            <div className="filters-container">
+              <div className="filter-group">
+                <label>Moto</label>
+                <select value={filters.motorBikeId} onChange={(e) => setFilters({...filters, motorBikeId: e.target.value})}>
+                  <option value="">Todas</option>
+                  {motorBikes.map(b => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="filter-group">
+                <label>Tipo</label>
+                <select value={filters.type} onChange={(e) => setFilters({...filters, type: e.target.value})}>
+                  <option value="ingreso">Ingresos</option>
+                  <option value="egreso">Egresos</option>
+                  <option value="">Todos</option>
+                </select>
+              </div>
+              <div className="filter-group">
+                <label>Desde</label>
+                <input type="date" value={filters.startDate} onChange={(e) => setFilters({...filters, startDate: e.target.value})} />
+              </div>
+              <div className="filter-group">
+                <label>Hasta</label>
+                <input type="date" value={filters.endDate} onChange={(e) => setFilters({...filters, endDate: e.target.value})} />
+              </div>
+              <div className="filter-group filter-actions">
+                <button className="btn-filter" onClick={() => { setPage(1); loadData(); }}>
+                  Aplicar Filtros
+                </button>
+              </div>
+            </div>
+
             {payments.length === 0 ? (
               <div className="empty-state">
                 <p>No hay pagos registrados</p>
@@ -718,17 +754,32 @@ function BalanceView() {
           >
             <div className="balance-action-footer">
               <button
-                className="btn-confirm"
-                onClick={() => setShowTransactionFormPayment(true)}
+                className="btn-income"
+                onClick={() => {
+                  setShowTransactionFormPayment(true);
+                  setShowTransactionFormBill(false);
+                }}
               >
-                Crear transacción
+                + CREAR INGRESO
               </button>
-              {showTransactionFormPayment && (
+              <button
+                className="btn-expense"
+                onClick={() => {
+                  setShowTransactionFormBill(true);
+                  setShowTransactionFormPayment(false);
+                }}
+              >
+                - CREAR EGRESO
+              </button>
+              {(showTransactionFormPayment || showTransactionFormBill) && (
                 <button
                   className="btn-cancel"
-                  onClick={() => setShowTransactionFormPayment(false)}
+                  onClick={() => {
+                    setShowTransactionFormPayment(false);
+                    setShowTransactionFormBill(false);
+                  }}
                 >
-                  Cerrar formulario
+                  Cerrar
                 </button>
               )}
             </div>
@@ -864,221 +915,8 @@ function BalanceView() {
             </div>
           )}
 
-          {/* Sección de Gastos (Tabla) */}
-          <section className="payments-section">
-            <h2>Listado de Gastos</h2>
-            {bills.length === 0 ? (
-              <div className="empty-state">
-                <p>No hay gastos registrados</p>
-              </div>
-            ) : (
-              <div className="payments-table-wrapper">
-                <table className="payments-table">
-                  <thead>
-                    <tr>
-                      <th>Monto</th>
-                      <th>Tipo</th>
-                      <th>Fecha</th>
-                      <th>Descripción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bills.map((bill) => (
-                      <tr key={bill.id} className={`payment-row ${bill.type}`}>
-                        {editPaymentId === bill.id ? (
-                          <td
-                            colSpan={5}
-                            style={{ background: "#f8fafc", padding: 0 }}
-                          >
-                            <form
-                              className="transaction-form"
-                              style={{
-                                boxShadow: "none",
-                                margin: 0,
-                                padding: 0,
-                              }}
-                              onSubmit={(e) => {
-                                e.preventDefault();
-                                handleUpdatePayment();
-                              }}
-                            >
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 12,
-                                }}
-                              >
-                                <label
-                                  style={{ flex: "1 1 120px", minWidth: 120 }}
-                                >
-                                  Cuenta
-                                  <select
-                                    value={editPaymentData.accountId}
-                                    onChange={(e) =>
-                                      setEditPaymentData({
-                                        ...editPaymentData,
-                                        accountId: e.target.value,
-                                      })
-                                    }
-                                    required
-                                  >
-                                    <option value="">Seleccionar cuenta</option>
-                                    {accounts.map((acc) => (
-                                      <option key={acc.id} value={acc.id}>
-                                        {acc.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </label>
-                                <label
-                                  style={{ flex: "1 1 120px", minWidth: 120 }}
-                                >
-                                  Moto
-                                  <select
-                                    value={editPaymentData.motorBikeId}
-                                    onChange={(e) =>
-                                      setEditPaymentData({
-                                        ...editPaymentData,
-                                        motorBikeId: e.target.value,
-                                      })
-                                    }
-                                  >
-                                    <option value="">Sin moto</option>
-                                    {motorBikes.map((bike) => (
-                                      <option key={bike.id} value={bike.id}>
-                                        {bike.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </label>
-                                <label
-                                  style={{ flex: "1 1 100px", minWidth: 100 }}
-                                >
-                                  Monto
-                                  <input
-                                    type="number"
-                                    value={editPaymentData.amount}
-                                    onChange={(e) =>
-                                      setEditPaymentData({
-                                        ...editPaymentData,
-                                        amount: e.target.value,
-                                      })
-                                    }
-                                    min="1"
-                                    required
-                                  />
-                                </label>
-                                <label
-                                  style={{ flex: "1 1 140px", minWidth: 140 }}
-                                >
-                                  Fecha
-                                  <input
-                                    type="date"
-                                    value={editPaymentData.date}
-                                    onChange={(e) =>
-                                      setEditPaymentData({
-                                        ...editPaymentData,
-                                        date: e.target.value,
-                                      })
-                                    }
-                                    required
-                                  />
-                                </label>
-                                <label
-                                  style={{ flex: "2 1 180px", minWidth: 180 }}
-                                >
-                                  Descripción
-                                  <input
-                                    type="text"
-                                    value={editPaymentData.description}
-                                    onChange={(e) =>
-                                      setEditPaymentData({
-                                        ...editPaymentData,
-                                        description: e.target.value,
-                                      })
-                                    }
-                                    maxLength={100}
-                                  />
-                                </label>
-                              </div>
-                              <div
-                                className="form-actions"
-                                style={{ marginTop: 8 }}
-                              >
-                                <button
-                                  className="btn-confirm"
-                                  type="submit"
-                                  disabled={submittingEditPayment}
-                                >
-                                  {submittingEditPayment
-                                    ? "Guardando..."
-                                    : "Guardar"}
-                                </button>
-                                <button
-                                  className="btn-cancel"
-                                  type="button"
-                                  onClick={() => setEditPaymentId(null)}
-                                >
-                                  Cancelar
-                                </button>
-                              </div>
-                            </form>
-                          </td>
-                        ) : (
-                          <>
-                            <td className="amount-cell">
-                              <span className={`amount ${bill.type}`}>
-                                {bill.type === "ingreso" ? "+ " : "- "}
-                                {formatCurrency(Math.abs(bill.amount))}
-                              </span>
-                            </td>
-                            <td className="type-cell">
-                              <span className={`type-badge ${bill.type}`}>
-                                {bill.type === "ingreso" ? "Ingreso" : "Egreso"}
-                              </span>
-                            </td>
-                            <td className="date-cell">
-                              {formatDate(bill.date)}
-                            </td>
-                            <td className="description-cell">
-                              {bill.description || "-"}
-                              <button
-                                className="btn-edit-transaction"
-                                onClick={() => handleEditPayment(bill)}
-                              >
-                                Editar
-                              </button>
-                            </td>
-                          </>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div>
-                  <button
-                    onClick={() => {
-                      if (pageB > 1) setPageB(pageB - 1);
-                    }}
-                  >
-                    -
-                  </button>
-                  <span style={{ margin: "0 8px", color: "#555" }}>
-                    {pageB} / {totalpagesB}
-                  </span>
-                  <button
-                    onClick={() => {
-                      if (pageB < totalpagesB) setPageB(pageB + 1);
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            )}
-          </section>
-          {/* Botones para crear transacción y cerrar formulario */}
+          {/* Formulario para crear transacción (Egreso) */}
+          {showTransactionFormBill && (          
           <div
             style={{
               marginTop: 32,
@@ -1103,7 +941,7 @@ function BalanceView() {
                 </button>
               )}
             </div>
-          </div>
+          </div>)}
 
           {/* Formulario para crear transacción */}
           {showTransactionFormBill && (

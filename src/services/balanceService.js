@@ -109,13 +109,19 @@ export const createAccount = async (accountData) => {
  * Obtiene todos los pagos/transacciones
  * @returns {Promise<Array>} Lista de pagos
  */
-export const getAllPayments = async (page = 1, setTotalPages) => {
+export const getAllPayments = async (page = 1, setTotalPages, filters = {}) => {
   try {
-    const url =
-      getApiUrl(BALANCE_ENDPOINTS.PAYMENTS) + "?type=ingreso&page=" + page;
+    const params = new URLSearchParams({ page: page.toString() });
+    
+    if (filters.motorBikeId) params.append("motorBikeId", filters.motorBikeId);
+    if (filters.type) params.append("type", filters.type);
+    if (filters.startDate) params.append("startDate", filters.startDate);
+    if (filters.endDate) params.append("endDate", filters.endDate);
+
+    const url = `${getApiUrl(BALANCE_ENDPOINTS.PAYMENTS)}?${params.toString()}`;
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`Error al obtener pagos: ${response.statusText}`);
+      throw new Error(`Error al obtener transacciones: ${response.statusText}`);
     }
     const data = await response.json();
     setTotalPages(Math.ceil(data.count / 10));
