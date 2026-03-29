@@ -8,7 +8,8 @@ import {
   updatePayment,
   getAllBills,
 } from "../services/balanceService";
-import { getAllMotorBikes } from "../services/motorBikeService";
+import { getAllMotorBikes, getMotorBikeDebts } from "../services/motorBikeService";
+import CalendarioPagos from "../components/Calendar";
 import "./BalanceView.css";
 
 function BalanceView() {
@@ -26,6 +27,11 @@ function BalanceView() {
   const [totalpages, setTotalPages] = useState(0);
   const [pageB, setPageB] = useState(1);
   const [totalpagesB, setTotalPagesB] = useState(0);
+
+  // States for calendar interaction after payment
+  const [showPromptCalendar, setShowPromptCalendar] = useState(false);
+  const [promptMotorBike, setPromptMotorBike] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const handleEditPayment = (payment) => {
     setEditPaymentId(payment.id);
@@ -120,6 +126,8 @@ function BalanceView() {
           date: transactionPaymentData.date,
           description: transactionPaymentData.description,
         });
+        const pagoMotorBikeId = transactionPaymentData.motorBikeId;
+
         setShowTransactionFormPayment(false);
         setTransactionPaymentData({
           accountId: "",
@@ -130,6 +138,14 @@ function BalanceView() {
           description: "",
         });
         await loadData();
+
+        if (pagoMotorBikeId) {
+          const bike = motorBikes.find((b) => b.id.toString() === pagoMotorBikeId.toString());
+          if (bike) {
+            setPromptMotorBike(bike);
+            setShowPromptCalendar(true);
+          }
+        }
       } else if (type === "egreso") {
         if (!transactionBillData.accountId || !transactionBillData.amount) {
           setError("Cuenta y monto son obligatorios");
@@ -163,6 +179,7 @@ function BalanceView() {
   const [payments, setPayments] = useState([]);
   const [bills, setBills] = useState([]);
   const [motorBikes, setMotorBikes] = useState([]);
+  const [debtsReport, setDebtsReport] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showNewAccountForm, setShowNewAccountForm] = useState(false);
@@ -212,17 +229,22 @@ function BalanceView() {
       setError(null);
 
       console.log("Cargando cuentas, pagos y motos...");
-      const [accountsData, paymentsData, billsData, bikesData] =
+      const [accountsData, paymentsData, billsData, bikesData, debtsData] =
         await Promise.all([
           getAllAccounts(),
           getAllPayments(page, setTotalPages),
           getAllBills(pageB, setTotalPagesB),
           getAllMotorBikes(),
+          getMotorBikeDebts().catch(err => {
+            console.error("Error al cargar deudas:", err);
+            return { data: [] }; // Fallback
+          })
         ]);
       setAccounts(accountsData);
       setPayments(paymentsData);
       setBills(billsData);
       setMotorBikes(bikesData);
+      setDebtsReport(debtsData.data || []);
       console.log("Cuentas cargadas:", accountsData);
     } catch (err) {
       console.error("Error al cargar datos:", err);
@@ -294,6 +316,39 @@ function BalanceView() {
 
       {!loading && (
         <>
+          {/* Sección de Resumen de Deudas */}
+          <section className="debts-section" style={{ marginBottom: "2rem" }}>
+            <h2>Resumen de Deudas</h2>
+            {(() => {
+              const motosConDeuda = debtsReport.filter(d => d.debt > 0);
+              const totalDeuda = motosConDeuda.reduce((acc, curr) => acc + curr.debt, 0);
+
+              if (motosConDeuda.length === 0) {
+                return (
+                  <div className="account-card" style={{ padding: "1.5rem", textAlign: "center", color: "#10b981", fontWeight: "bold" }}>
+                    🎉 ¡Al día! Ninguna moto registra deudas pendientes.
+                  </div>
+                );
+              }
+
+              return (
+                <div className="account-card" style={{ borderLeft: "4px solid #ef4444", padding: "1.5rem" }}>
+                  <h3 style={{ color: "#ef4444", margin: "0 0 1rem 0", fontSize: "1.25rem" }}>
+                    Tenemos {motosConDeuda.length} moto{motosConDeuda.length > 1 ? "s" : ""} adeudando un monto total de <strong>{formatCurrency(totalDeuda)}</strong>
+                  </h3>
+                  <div style={{ display: "grid", gap: "10px", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
+                    {motosConDeuda.map(moto => (
+                      <div key={moto.id} style={{ background: "rgba(255,255,255,0.05)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.1)" }}>
+                        <div style={{ fontWeight: "600", fontSize: "14px", marginBottom: "4px", color: "#6a88c5ff" }}>{moto.name}</div>
+                        <div style={{ color: "#ef4444", fontWeight: "bold" }}>Deuda: {formatCurrency(moto.debt)}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </section>
+
           {/* Sección de Cuentas (Cards) */}
           <section className="accounts-section">
             <h2>Cuentas</h2>
@@ -1159,6 +1214,52 @@ function BalanceView() {
                 </form>
               </div>
             </div>
+          )}
+
+          {/* Modal Prompt para abrir calendario */}
+          {showPromptCalendar && promptMotorBike && (
+            <div className="calendar-overlay">
+              <div className="day-modal">
+                <h4 style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                  <span>✓</span> Pago registrado
+                </h4>
+                <p style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#9ca3af', fontSize: '0.95rem', lineHeight: '1.4' }}>
+                  ¿Deseas editar el calendario de la moto <strong style={{color: '#f3f4f6'}}>{promptMotorBike.name}</strong> para actualizar su estado?
+                </p>
+                <div className="modal-actions" style={{ marginTop: '1rem' }}>
+                  <button
+                    className="btn-cancel"
+                    onClick={() => {
+                      setShowPromptCalendar(false);
+                      setPromptMotorBike(null);
+                    }}
+                  >
+                    No, gracias
+                  </button>
+                  <button
+                    className="btn-save"
+                    onClick={() => {
+                      setShowPromptCalendar(false);
+                      setShowCalendar(true);
+                    }}
+                  >
+                    Sí, editar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Calendario real */}
+          {showCalendar && promptMotorBike && (
+            <CalendarioPagos
+              motorBike={promptMotorBike}
+              onClose={() => {
+                setShowCalendar(false);
+                setPromptMotorBike(null);
+                loadData();
+              }}
+            />
           )}
         </>
       )}

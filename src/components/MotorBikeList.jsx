@@ -1,5 +1,11 @@
 import "./MotorBikeList.css";
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("T")[0].split("-");
+  return `${day}/${month}/${year}`;
+};
+
 function MotorBikeList({ motorBikes, onEdit, onCalendar, loading }) {
   if (loading) {
     return (
@@ -35,6 +41,20 @@ function MotorBikeList({ motorBikes, onEdit, onCalendar, loading }) {
               {moto.trackingToken && (
                 <p className="motor-bike-token">
                   Token: {moto.trackingToken.substring(0, 20)}...
+                </p>
+              )}
+              {moto.debt > 0 ? (
+                <p className="motor-bike-debt has-debt">
+                  Deuda: ${moto.debt.toLocaleString('es-AR')}
+                </p>
+              ) : (
+                <p className="motor-bike-debt no-debt">
+                  Al día
+                </p>
+              )}
+              {moto.lastMaintenanceDate && (
+                <p className="motor-bike-maintenance">
+                  Mantenimiento: {formatDate(moto.lastMaintenanceDate)}
                 </p>
               )}
             </div>

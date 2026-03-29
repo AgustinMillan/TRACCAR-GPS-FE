@@ -92,3 +92,20 @@ export const updateMotorBike = async (id, motorBikeData) => {
     }
 }
 
+/**
+ * Obtiene el reporte de deudas de las motos
+ * @returns {Promise<Object>} Object containing data (array) and count
+ */
+export const getMotorBikeDebts = async () => {
+    try {
+        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.MOTOR_BIKE_DEBTS))
+        if (!response.ok) {
+            throw new Error(`Error al obtener reporte de deudas: ${response.statusText}`)
+        }
+        const data = await response.json()
+        return data
+    } catch (error) {
+        console.error('Error en getMotorBikeDebts:', error)
+        throw error
+    }
+}

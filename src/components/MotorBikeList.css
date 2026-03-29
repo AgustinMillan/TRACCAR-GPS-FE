@@ -55,6 +55,27 @@
   white-space: nowrap;
 }
 
+.motor-bike-debt {
+  margin: 6px 0 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.motor-bike-debt.has-debt {
+  color: #ef4444; /* red */
+}
+
+.motor-bike-debt.no-debt {
+  color: #10b981; /* emerald */
+}
+
+.motor-bike-maintenance {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #8b5cf6; /* violet */
+  font-weight: 500;
+}
+
 .motor-bike-status {
   display: flex;
   align-items: center;

@@ -1,34 +1,27 @@
-import { useState } from "react";
-import BottomNavigation from "./components/BottomNavigation";
+import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import MainLayout from "./layouts/MainLayout";
 import MapView from "./views/MapView";
 import MotorBikeManagement from "./views/MotorBikeManagement";
 import BalanceView from "./views/BalanceView";
+import Login from "./views/Login";
 import "./App.css";
 
 function App() {
-  const [activeView, setActiveView] = useState("map");
-
-  const renderView = () => {
-    switch (activeView) {
-      case "map":
-        return <MapView />;
-      case "motorcycles":
-        return <MotorBikeManagement />;
-      case "balance":
-        return <BalanceView />;
-      default:
-        return <MapView />;
-    }
-  };
-
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Traccar GPS</h1>
-      </header>
-      <main className="app-main">{renderView()}</main>
-      <BottomNavigation activeView={activeView} onViewChange={setActiveView} />
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      
+      <Route element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/map" element={<MapView />} />
+          <Route path="/motorcycles" element={<MotorBikeManagement />} />
+          <Route path="/balance" element={<BalanceView />} />
+        </Route>
+      </Route>
+      
+      <Route path="*" element={<Navigate to="/balance" replace />} />
+    </Routes>
   );
 }
 
