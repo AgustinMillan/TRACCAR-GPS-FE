@@ -6,16 +6,23 @@ import {
   updateAccount,
   createPayment,
   updatePayment,
+  createTransfer,
 } from "../services/balanceService";
-import { getAllMotorBikes, getMotorBikeDebts } from "../services/motorBikeService";
+import {
+  getAllMotorBikes,
+  getMotorBikeDebts,
+} from "../services/motorBikeService";
 import CalendarioPagos from "../components/Calendar";
 import "./BalanceView.css";
+import { getCategories } from "../services/categoryService";
 
 function BalanceView() {
+  const [categories, setCategories] = useState([]);
   const [editPaymentId, setEditPaymentId] = useState(null);
   const [editPaymentData, setEditPaymentData] = useState({
     accountId: "",
     motorBikeId: "",
+    categoryId: "",
     amount: "",
     type: "ingreso",
     date: new Date().toISOString().slice(0, 10),
@@ -43,6 +50,7 @@ function BalanceView() {
     setEditPaymentData({
       accountId: payment.accountId?.toString() || "",
       motorBikeId: payment.motorBikeId?.toString() || "",
+      categoryId: payment.categoryId?.toString() || "",
       amount: payment.amount?.toString() || "",
       type: payment.type || "ingreso",
       date: payment.date
@@ -69,6 +77,9 @@ function BalanceView() {
         motorBikeId: editPaymentData.motorBikeId
           ? Number(editPaymentData.motorBikeId)
           : null,
+        categoryId: editPaymentData.categoryId
+          ? Number(editPaymentData.categoryId)
+          : null,
         amount: Number(editPaymentData.amount),
         type: editPaymentData.type,
         date: editPaymentData.date,
@@ -78,6 +89,7 @@ function BalanceView() {
       setEditPaymentData({
         accountId: "",
         motorBikeId: "",
+        categoryId: "",
         amount: "",
         type: "ingreso",
         date: new Date().toISOString().slice(0, 10),
@@ -96,6 +108,7 @@ function BalanceView() {
   const [transactionPaymentData, setTransactionPaymentData] = useState({
     accountId: "",
     motorBikeId: "",
+    categoryId: "",
     amount: "",
     type: "ingreso",
     description: "",
@@ -104,12 +117,111 @@ function BalanceView() {
   const [showTransactionFormBill, setShowTransactionFormBill] = useState(false);
   const [transactionBillData, setTransactionBillData] = useState({
     accountId: "",
+    categoryId: "",
     amount: "",
     type: "egreso",
     description: "",
   });
 
   const [submittingTransaction, setSubmittingTransaction] = useState(false);
+
+  // --- Estados para transferencia de ahorros ---
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferMode, setTransferMode] = useState("save"); // "save" = añadir ahorros, "withdraw" = sacar de ahorros
+  const [transferData, setTransferData] = useState({
+    fromAccountId: "",
+    toAccountId: "",
+    amount: "",
+    date: new Date().toISOString().slice(0, 10),
+    description: "",
+  });
+  const [submittingTransfer, setSubmittingTransfer] = useState(false);
+
+  const openTransferModal = (mode) => {
+    setTransferMode(mode);
+    setTransferData({
+      fromAccountId: "",
+      toAccountId: "",
+      amount: "",
+      date: new Date().toISOString().slice(0, 10),
+      description: "",
+    });
+    setShowTransferModal(true);
+  };
+
+  const handleCreateTransfer = async () => {
+    // La cuenta "Ahorros" siempre es una parte fija de la transferencia
+    const ahorrosAccount = accounts.find((a) => a.name === "Ahorros");
+    if (!ahorrosAccount && transferMode !== "between") {
+      setError(
+        'No existe una cuenta llamada "Ahorros". Créala primero desde la sección de cuentas.',
+      );
+      return;
+    }
+
+    if (transferMode === "between") {
+      if (!transferData.fromAccountId || !transferData.toAccountId) {
+        setError("Seleccioná la cuenta de origen y destino");
+        return;
+      }
+      if (Number(transferData.fromAccountId) === Number(transferData.toAccountId)) {
+        setError("La cuenta de origen y la de destino no pueden ser la misma");
+        return;
+      }
+    } else {
+      if (!transferData.fromAccountId && transferMode === "save") {
+        setError("Seleccioná la cuenta de origen");
+        return;
+      }
+      if (!transferData.toAccountId && transferMode === "withdraw") {
+        setError("Seleccioná la cuenta destino");
+        return;
+      }
+    }
+
+    if (!transferData.amount) {
+      setError("Ingresá un monto");
+      return;
+    }
+
+    const fromId =
+      transferMode === "save"
+        ? Number(transferData.fromAccountId)
+        : transferMode === "withdraw"
+        ? ahorrosAccount.id
+        : Number(transferData.fromAccountId);
+
+    const toId =
+      transferMode === "save"
+        ? ahorrosAccount.id
+        : transferMode === "withdraw"
+        ? Number(transferData.toAccountId)
+        : Number(transferData.toAccountId);
+
+    setSubmittingTransfer(true);
+    try {
+      await createTransfer({
+        fromAccountId: fromId,
+        toAccountId: toId,
+        amount: Number(transferData.amount),
+        date: transferData.date,
+        description:
+          transferData.description ||
+          (transferMode === "save"
+            ? "Añadir a ahorros"
+            : transferMode === "withdraw"
+            ? "Sacar de ahorros"
+            : "Transferencia entre cuentas"),
+      });
+      setShowTransferModal(false);
+      await loadData();
+    } catch (err) {
+      setError(err.message || "Error al realizar la transferencia");
+    } finally {
+      setSubmittingTransfer(false);
+    }
+  };
+
   const handleCreateTransaction = async (type) => {
     setSubmittingTransaction(true);
     try {
@@ -126,6 +238,9 @@ function BalanceView() {
           motorBikeId: transactionPaymentData.motorBikeId
             ? Number(transactionPaymentData.motorBikeId)
             : null,
+          categoryId: transactionPaymentData.categoryId
+            ? Number(transactionPaymentData.categoryId)
+            : null,
           amount: Number(transactionPaymentData.amount),
           type,
           date: transactionPaymentData.date,
@@ -137,6 +252,7 @@ function BalanceView() {
         setTransactionPaymentData({
           accountId: "",
           motorBikeId: "",
+          categoryId: "",
           amount: "",
           type: "ingreso",
           date: new Date().toISOString().slice(0, 10),
@@ -145,7 +261,9 @@ function BalanceView() {
         await loadData();
 
         if (pagoMotorBikeId) {
-          const bike = motorBikes.find((b) => b.id.toString() === pagoMotorBikeId.toString());
+          const bike = motorBikes.find(
+            (b) => b.id.toString() === pagoMotorBikeId.toString(),
+          );
           if (bike) {
             setPromptMotorBike(bike);
             setShowPromptCalendar(true);
@@ -159,6 +277,9 @@ function BalanceView() {
         await createPayment({
           accountId: Number(transactionBillData.accountId),
           amount: Number(transactionBillData.amount),
+          categoryId: transactionBillData.categoryId
+            ? Number(transactionBillData.categoryId)
+            : null,
           type,
           date: transactionBillData.date,
           description: transactionBillData.description,
@@ -233,20 +354,22 @@ function BalanceView() {
       setError(null);
 
       console.log("Cargando cuentas, pagos y motos...");
-      const [accountsData, paymentsData, bikesData, debtsData] =
+      const [accountsData, paymentsData, bikesData, debtsData, categoriesData] =
         await Promise.all([
           getAllAccounts(),
           getAllPayments(page, setTotalPages, filters),
           getAllMotorBikes(),
-          getMotorBikeDebts().catch(err => {
+          getMotorBikeDebts().catch((err) => {
             console.error("Error al cargar deudas:", err);
             return { data: [] }; // Fallback
-          })
+          }),
+          getCategories(),
         ]);
       setAccounts(accountsData);
       setPayments(paymentsData);
       setMotorBikes(bikesData);
       setDebtsReport(debtsData.data || []);
+      setCategories(categoriesData);
       console.log("Cuentas cargadas:", accountsData);
     } catch (err) {
       console.error("Error al cargar datos:", err);
@@ -322,27 +445,75 @@ function BalanceView() {
           <section className="debts-section" style={{ marginBottom: "2rem" }}>
             <h2>Resumen de Deudas</h2>
             {(() => {
-              const motosConDeuda = debtsReport.filter(d => d.debt > 0);
-              const totalDeuda = motosConDeuda.reduce((acc, curr) => acc + curr.debt, 0);
+              const motosConDeuda = debtsReport.filter((d) => d.debt > 0);
+              const totalDeuda = motosConDeuda.reduce(
+                (acc, curr) => acc + curr.debt,
+                0,
+              );
 
               if (motosConDeuda.length === 0) {
                 return (
-                  <div className="account-card" style={{ padding: "1.5rem", textAlign: "center", color: "#10b981", fontWeight: "bold" }}>
+                  <div
+                    className="account-card"
+                    style={{
+                      padding: "1.5rem",
+                      textAlign: "center",
+                      color: "#10b981",
+                      fontWeight: "bold",
+                    }}
+                  >
                     🎉 ¡Al día! Ninguna moto registra deudas pendientes.
                   </div>
                 );
               }
 
               return (
-                <div className="account-card" style={{ borderLeft: "4px solid #ef4444", padding: "1.5rem" }}>
-                  <h3 style={{ color: "#ef4444", margin: "0 0 1rem 0", fontSize: "1.25rem" }}>
-                    Tenemos {motosConDeuda.length} moto{motosConDeuda.length > 1 ? "s" : ""} adeudando un monto total de <strong>{formatCurrency(totalDeuda)}</strong>
+                <div
+                  className="account-card"
+                  style={{ borderLeft: "4px solid #ef4444", padding: "1.5rem" }}
+                >
+                  <h3
+                    style={{
+                      color: "#ef4444",
+                      margin: "0 0 1rem 0",
+                      fontSize: "1.25rem",
+                    }}
+                  >
+                    Tenemos {motosConDeuda.length} moto
+                    {motosConDeuda.length > 1 ? "s" : ""} adeudando un monto
+                    total de <strong>{formatCurrency(totalDeuda)}</strong>
                   </h3>
-                  <div style={{ display: "grid", gap: "10px", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
-                    {motosConDeuda.map(moto => (
-                      <div key={moto.id} style={{ background: "rgba(255,255,255,0.05)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.1)" }}>
-                        <div style={{ fontWeight: "600", fontSize: "14px", marginBottom: "4px", color: "#6a88c5ff" }}>{moto.name}</div>
-                        <div style={{ color: "#ef4444", fontWeight: "bold" }}>Deuda: {formatCurrency(moto.debt)}</div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gap: "10px",
+                      gridTemplateColumns:
+                        "repeat(auto-fill, minmax(200px, 1fr))",
+                    }}
+                  >
+                    {motosConDeuda.map((moto) => (
+                      <div
+                        key={moto.id}
+                        style={{
+                          background: "rgba(255,255,255,0.05)",
+                          padding: "10px",
+                          borderRadius: "8px",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontWeight: "600",
+                            fontSize: "14px",
+                            marginBottom: "4px",
+                            color: "#6a88c5ff",
+                          }}
+                        >
+                          {moto.name}
+                        </div>
+                        <div style={{ color: "#ef4444", fontWeight: "bold" }}>
+                          Deuda: {formatCurrency(moto.debt)}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -493,16 +664,28 @@ function BalanceView() {
             <div className="filters-container">
               <div className="filter-group">
                 <label>Moto</label>
-                <select value={filters.motorBikeId} onChange={(e) => setFilters({...filters, motorBikeId: e.target.value})}>
+                <select
+                  value={filters.motorBikeId}
+                  onChange={(e) =>
+                    setFilters({ ...filters, motorBikeId: e.target.value })
+                  }
+                >
                   <option value="">Todas</option>
-                  {motorBikes.map(b => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
+                  {motorBikes.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="filter-group">
                 <label>Tipo</label>
-                <select value={filters.type} onChange={(e) => setFilters({...filters, type: e.target.value})}>
+                <select
+                  value={filters.type}
+                  onChange={(e) =>
+                    setFilters({ ...filters, type: e.target.value })
+                  }
+                >
                   <option value="ingreso">Ingresos</option>
                   <option value="egreso">Egresos</option>
                   <option value="">Todos</option>
@@ -510,14 +693,32 @@ function BalanceView() {
               </div>
               <div className="filter-group">
                 <label>Desde</label>
-                <input type="date" value={filters.startDate} onChange={(e) => setFilters({...filters, startDate: e.target.value})} />
+                <input
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(e) =>
+                    setFilters({ ...filters, startDate: e.target.value })
+                  }
+                />
               </div>
               <div className="filter-group">
                 <label>Hasta</label>
-                <input type="date" value={filters.endDate} onChange={(e) => setFilters({...filters, endDate: e.target.value})} />
+                <input
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) =>
+                    setFilters({ ...filters, endDate: e.target.value })
+                  }
+                />
               </div>
               <div className="filter-group filter-actions">
-                <button className="btn-filter" onClick={() => { setPage(1); loadData(); }}>
+                <button
+                  className="btn-filter"
+                  onClick={() => {
+                    setPage(1);
+                    loadData();
+                  }}
+                >
                   Aplicar Filtros
                 </button>
               </div>
@@ -688,17 +889,25 @@ function BalanceView() {
                         ) : (
                           <>
                             <td className="amount-cell">
-                              <span className={`amount ${payment.type}`}>
+                              <span
+                                className={`amount ${payment.isTransfer ? "transfer" : payment.type}`}
+                              >
                                 {payment.type === "ingreso" ? "+ " : "- "}
                                 {formatCurrency(Math.abs(payment.amount))}
                               </span>
                             </td>
                             <td className="type-cell">
-                              <span className={`type-badge ${payment.type}`}>
-                                {payment.type === "ingreso"
-                                  ? "Ingreso"
-                                  : "Egreso"}
-                              </span>
+                              {payment.isTransfer ? (
+                                <span className="type-badge transfer">
+                                  🔁 Transferencia
+                                </span>
+                              ) : (
+                                <span className={`type-badge ${payment.type}`}>
+                                  {payment.type === "ingreso"
+                                    ? "Ingreso"
+                                    : "Egreso"}
+                                </span>
+                              )}
                             </td>
                             <td className="bike-cell">
                               {getMotorBikeName(payment.motorBikeId)}
@@ -708,12 +917,14 @@ function BalanceView() {
                             </td>
                             <td className="description-cell">
                               {payment.description || "-"}
-                              <button
-                                className="btn-edit-transaction"
-                                onClick={() => handleEditPayment(payment)}
-                              >
-                                Editar
-                              </button>
+                              {!payment.isTransfer && (
+                                <button
+                                  className="btn-edit-transaction"
+                                  onClick={() => handleEditPayment(payment)}
+                                >
+                                  Editar
+                                </button>
+                              )}
                             </td>
                           </>
                         )}
@@ -758,6 +969,7 @@ function BalanceView() {
                 onClick={() => {
                   setShowTransactionFormPayment(true);
                   setShowTransactionFormBill(false);
+                  setShowTransferModal(false);
                 }}
               >
                 + CREAR INGRESO
@@ -767,16 +979,50 @@ function BalanceView() {
                 onClick={() => {
                   setShowTransactionFormBill(true);
                   setShowTransactionFormPayment(false);
+                  setShowTransferModal(false);
                 }}
               >
                 - CREAR EGRESO
               </button>
-              {(showTransactionFormPayment || showTransactionFormBill) && (
+              <button
+                className="btn-savings"
+                onClick={() => {
+                  setShowTransactionFormPayment(false);
+                  setShowTransactionFormBill(false);
+                  openTransferModal("save");
+                }}
+              >
+                🏦 AÑADIR AHORROS
+              </button>
+              <button
+                className="btn-withdraw-savings"
+                onClick={() => {
+                  setShowTransactionFormPayment(false);
+                  setShowTransactionFormBill(false);
+                  openTransferModal("withdraw");
+                }}
+              >
+                💸 SACAR DE AHORROS
+              </button>
+              <button
+                className="btn-transfer-between"
+                onClick={() => {
+                  setShowTransactionFormPayment(false);
+                  setShowTransactionFormBill(false);
+                  openTransferModal("between");
+                }}
+              >
+                🔁 TRANSFERIR ENTRE CUENTAS
+              </button>
+              {(showTransactionFormPayment ||
+                showTransactionFormBill ||
+                showTransferModal) && (
                 <button
                   className="btn-cancel"
                   onClick={() => {
                     setShowTransactionFormPayment(false);
                     setShowTransactionFormBill(false);
+                    setShowTransferModal(false);
                   }}
                 >
                   Cerrar
@@ -785,7 +1031,7 @@ function BalanceView() {
             </div>
           </div>
 
-          {/* Formulario para crear transacción */}
+          {/* Formulario para crear transacción INGRESO*/}
           {showTransactionFormPayment && (
             <div
               className="transaction-form"
@@ -809,7 +1055,7 @@ function BalanceView() {
                     handleCreateTransaction("ingreso");
                   }}
                 >
-                  <h3>Crear transacción</h3>
+                  <h3>Crear Ingreso</h3>
                   <label>
                     Cuenta
                     <select
@@ -915,35 +1161,7 @@ function BalanceView() {
             </div>
           )}
 
-          {/* Formulario para crear transacción (Egreso) */}
-          {showTransactionFormBill && (          
-          <div
-            style={{
-              marginTop: 32,
-              display: "flex",
-              gap: 16,
-              justifyContent: "flex-end",
-            }}
-          >
-            <div className="balance-action-footer">
-              <button
-                className="btn-confirm"
-                onClick={() => setShowTransactionFormBill(true)}
-              >
-                Crear transacción
-              </button>
-              {showTransactionFormBill && (
-                <button
-                  className="btn-cancel"
-                  onClick={() => setShowTransactionFormBill(false)}
-                >
-                  Cerrar formulario
-                </button>
-              )}
-            </div>
-          </div>)}
-
-          {/* Formulario para crear transacción */}
+          {/* Formulario para crear transacción EGRESOS*/}
           {showTransactionFormBill && (
             <div
               className="transaction-form"
@@ -967,7 +1185,7 @@ function BalanceView() {
                     handleCreateTransaction("egreso");
                   }}
                 >
-                  <h3>Crear transacción</h3>
+                  <h3>Crear Egreso</h3>
                   <label>
                     Cuenta
                     <select
@@ -1002,6 +1220,25 @@ function BalanceView() {
                       min="1"
                       required
                     />
+                  </label>
+                  <label>
+                    Categoría
+                    <select
+                      value={transactionBillData.categoryId}
+                      onChange={(e) =>
+                        setTransactionBillData({
+                          ...transactionBillData,
+                          categoryId: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Sin categoría</option>
+                      {categories?.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
                   </label>
                   <label>
                     Fecha
@@ -1058,13 +1295,33 @@ function BalanceView() {
           {showPromptCalendar && promptMotorBike && (
             <div className="calendar-overlay">
               <div className="day-modal">
-                <h4 style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                <h4
+                  style={{
+                    color: "#10b981",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    justifyContent: "center",
+                  }}
+                >
                   <span>✓</span> Pago registrado
                 </h4>
-                <p style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#9ca3af', fontSize: '0.95rem', lineHeight: '1.4' }}>
-                  ¿Deseas editar el calendario de la moto <strong style={{color: '#f3f4f6'}}>{promptMotorBike.name}</strong> para actualizar su estado?
+                <p
+                  style={{
+                    textAlign: "center",
+                    marginBottom: "1.5rem",
+                    color: "#9ca3af",
+                    fontSize: "0.95rem",
+                    lineHeight: "1.4",
+                  }}
+                >
+                  ¿Deseas editar el calendario de la moto{" "}
+                  <strong style={{ color: "#f3f4f6" }}>
+                    {promptMotorBike.name}
+                  </strong>{" "}
+                  para actualizar su estado?
                 </p>
-                <div className="modal-actions" style={{ marginTop: '1rem' }}>
+                <div className="modal-actions" style={{ marginTop: "1rem" }}>
                   <button
                     className="btn-cancel"
                     onClick={() => {
@@ -1098,6 +1355,275 @@ function BalanceView() {
                 loadData();
               }}
             />
+          )}
+
+          {/* Modal de transferencia de ahorros */}
+          {showTransferModal && (
+            <div
+              className="transfer-modal-overlay"
+              onClick={() => setShowTransferModal(false)}
+            >
+              <div
+                className="transfer-modal"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="transfer-modal-header">
+                  <span className="transfer-modal-icon">
+                    {transferMode === "save" ? "🏦" : transferMode === "withdraw" ? "💸" : "🔁"}
+                  </span>
+                  <h3>
+                    {transferMode === "save"
+                      ? "Añadir Ahorros"
+                      : transferMode === "withdraw"
+                        ? "Sacar de Ahorros"
+                        : "Transferir entre Cuentas"}
+                  </h3>
+                  <button
+                    className="transfer-modal-close"
+                    onClick={() => setShowTransferModal(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="transfer-modal-body">
+                  <p className="transfer-hint">
+                    {transferMode === "save"
+                      ? "El dinero se moverá desde tu cuenta de origen hacia la cuenta de ahorros."
+                      : transferMode === "withdraw"
+                        ? "El dinero se moverá desde tu cuenta de ahorros hacia la cuenta destino."
+                        : "El dinero se moverá entre las dos cuentas seleccionadas (excluyendo ahorros)."}
+                  </p>
+
+                  <div className="transfer-form-grid">
+                    {/* AÑADIR: usuario elige origen, destino = AHORROS fijo */}
+                    {transferMode === "save" && (
+                      <>
+                        <label className="transfer-label">
+                          <span>Cuenta origen</span>
+                          <select
+                            value={transferData.fromAccountId}
+                            onChange={(e) =>
+                              setTransferData({
+                                ...transferData,
+                                fromAccountId: e.target.value,
+                              })
+                            }
+                            required
+                          >
+                            <option value="">Seleccionar cuenta...</option>
+                            {accounts
+                              .filter((a) => a.name !== "Ahorros")
+                              .map((acc) => (
+                                <option key={acc.id} value={acc.id}>
+                                  {acc.name}
+                                  {acc.alias ? ` (${acc.alias})` : ""}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+
+                        <div className="transfer-arrow">→</div>
+
+                        <div className="transfer-label">
+                          <span>Destino (fijo)</span>
+                          <div className="transfer-fixed-account">
+                            🏦 Ahorros
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* SACAR: origen = AHORROS fijo, usuario elige destino */}
+                    {transferMode === "withdraw" && (
+                      <>
+                        <div className="transfer-label">
+                          <span>Origen (fijo)</span>
+                          <div className="transfer-fixed-account">
+                            🏦 Ahorros
+                          </div>
+                        </div>
+
+                        <div className="transfer-arrow">→</div>
+
+                        <label className="transfer-label">
+                          <span>Cuenta destino</span>
+                          <select
+                            value={transferData.toAccountId}
+                            onChange={(e) =>
+                              setTransferData({
+                                ...transferData,
+                                toAccountId: e.target.value,
+                              })
+                            }
+                            required
+                          >
+                            <option value="">Seleccionar cuenta...</option>
+                            {accounts
+                              .filter((a) => a.name !== "Ahorros")
+                              .map((acc) => (
+                                <option key={acc.id} value={acc.id}>
+                                  {acc.name}
+                                  {acc.alias ? ` (${acc.alias})` : ""}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+                      </>
+                    )}
+
+                    {/* TRANSFERIR ENTRE CUENTAS: usuario elige origen y destino, filtrando Ahorros */}
+                    {transferMode === "between" && (
+                      <>
+                        <label className="transfer-label">
+                          <span>Cuenta origen</span>
+                          <select
+                            value={transferData.fromAccountId}
+                            onChange={(e) =>
+                              setTransferData({
+                                ...transferData,
+                                fromAccountId: e.target.value,
+                              })
+                            }
+                            required
+                          >
+                            <option value="">Seleccionar cuenta...</option>
+                            {accounts
+                              .filter((a) => a.name !== "Ahorros")
+                              .map((acc) => (
+                                <option key={acc.id} value={acc.id}>
+                                  {acc.name}
+                                  {acc.alias ? ` (${acc.alias})` : ""}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+
+                        <div className="transfer-arrow">→</div>
+
+                        <label className="transfer-label">
+                          <span>Cuenta destino</span>
+                          <select
+                            value={transferData.toAccountId}
+                            onChange={(e) =>
+                              setTransferData({
+                                ...transferData,
+                                toAccountId: e.target.value,
+                              })
+                            }
+                            required
+                          >
+                            <option value="">Seleccionar cuenta...</option>
+                            {accounts
+                              .filter((a) => a.name !== "Ahorros" && a.id.toString() !== transferData.fromAccountId)
+                              .map((acc) => (
+                                <option key={acc.id} value={acc.id}>
+                                  {acc.name}
+                                  {acc.alias ? ` (${acc.alias})` : ""}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+                      </>
+                    )}
+
+                    {/* Aviso si no existe la cuenta Ahorros */}
+                    {transferMode !== "between" && !accounts.find((a) => a.name === "Ahorros") && (
+                      <p
+                        className="transfer-warn"
+                        style={{ gridColumn: "1 / -1" }}
+                      >
+                        ⚠️ No encontramos una cuenta llamada{" "}
+                        <strong>"Ahorros"</strong>. Créala desde la sección de
+                        cuentas para poder operar.
+                      </p>
+                    )}
+                  </div>
+
+                  <label className="transfer-label">
+                    <span>Monto</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={transferData.amount}
+                      onChange={(e) =>
+                        setTransferData({
+                          ...transferData,
+                          amount: e.target.value,
+                        })
+                      }
+                      placeholder="0"
+                      required
+                    />
+                  </label>
+
+                  <label className="transfer-label">
+                    <span>Fecha</span>
+                    <input
+                      type="date"
+                      value={transferData.date}
+                      onChange={(e) =>
+                        setTransferData({
+                          ...transferData,
+                          date: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </label>
+
+                  <label className="transfer-label">
+                    <span>Descripción (opcional)</span>
+                    <input
+                      type="text"
+                      value={transferData.description}
+                      onChange={(e) =>
+                        setTransferData({
+                          ...transferData,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder={
+                        transferMode === "save"
+                          ? "Ej: Ahorro de abril"
+                          : transferMode === "withdraw"
+                            ? "Ej: Retiro para gastos"
+                            : "Ej: Transferencia interna"
+                      }
+                      maxLength={100}
+                    />
+                  </label>
+                </div>
+
+                <div className="transfer-modal-footer">
+                  <button
+                    className={
+                      transferMode === "save"
+                        ? "btn-savings"
+                        : transferMode === "withdraw"
+                          ? "btn-withdraw-savings"
+                          : "btn-transfer-between"
+                    }
+                    onClick={handleCreateTransfer}
+                    disabled={submittingTransfer}
+                  >
+                    {submittingTransfer
+                      ? "Procesando..."
+                      : transferMode === "save"
+                        ? "🏦 Confirmar Ahorro"
+                        : transferMode === "withdraw"
+                          ? "💸 Confirmar Retiro"
+                          : "🔁 Confirmar Transferencia"}
+                  </button>
+                  <button
+                    className="btn-cancel"
+                    onClick={() => setShowTransferModal(false)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </>
       )}

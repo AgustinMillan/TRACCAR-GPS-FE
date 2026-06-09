@@ -33,6 +33,13 @@ function BottomNavigation() {
         <span className="nav-icon">💲</span>
         <span className="nav-label">Balance</span>
       </button>
+      <button
+        className={`nav-item ${isActive("/reports") ? "active" : ""}`}
+        onClick={() => navigate("/reports")}
+      >
+        <span className="nav-icon">📊</span>
+        <span className="nav-label">Reportes</span>
+      </button>
     </nav>
   );
 }
