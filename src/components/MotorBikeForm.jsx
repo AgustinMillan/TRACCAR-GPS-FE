@@ -1,5 +1,24 @@
 import { useState, useEffect } from "react";
-import "./MotorBikeForm.css";
+
+const inputClass = `
+  w-full px-3.5 py-2.5 rounded-lg text-[14px] text-[#fafafa] 
+  placeholder:text-[#71717a] transition-all duration-200 outline-none
+  bg-[#09090b] border border-[#71717a]
+  focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)]
+  disabled:opacity-40 disabled:cursor-not-allowed
+`;
+
+const labelClass = "block mb-1.5 text-[14px] font-semibold text-[#a1a1aa] uppercase tracking-wider";
+
+function ToggleSwitch({ checked, onChange, disabled }) {
+  return (
+    <label className="toggle-switch cursor-pointer">
+      <input type="checkbox" checked={checked} onChange={onChange} disabled={disabled} />
+      <div className="toggle-track" />
+      <div className="toggle-thumb" />
+    </label>
+  );
+}
 
 function MotorBikeForm({ motorBike, onSave, onCancel, loading }) {
   const [formData, setFormData] = useState({
@@ -7,7 +26,7 @@ function MotorBikeForm({ motorBike, onSave, onCancel, loading }) {
     trackingToken: "",
     phoneNumber: "",
     phoneCompany: "",
-    gpsType: "",
+    gpsType: "TRACCAR",
     isActive: true,
   });
   const [errors, setErrors] = useState({});
@@ -27,6 +46,9 @@ function MotorBikeForm({ motorBike, onSave, onCancel, loading }) {
         name: "",
         trackingToken: "",
         isActive: true,
+        phoneNumber: "",
+        phoneCompany: "",
+        gpsType: "TRACCAR",
       });
     }
     setErrors({});
@@ -38,12 +60,8 @@ function MotorBikeForm({ motorBike, onSave, onCancel, loading }) {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    // Limpiar error del campo cuando el usuario empieza a escribir
     if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -64,133 +82,212 @@ function MotorBikeForm({ motorBike, onSave, onCancel, loading }) {
   };
 
   return (
-    <div className="motor-bike-form-overlay" onClick={onCancel}>
+    <div
+      className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in"
+      style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+      onClick={onCancel}
+    >
       <div
-        className="motor-bike-form-container"
+        className="w-full sm:max-w-[480px] max-h-[92dvh] overflow-y-auto animate-slide-up rounded-t-2xl sm:rounded-2xl"
+        style={{
+          background: "#18181b",
+          border: "1px solid #27272a",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="motor-bike-form-header">
-          <h2>{motorBike ? "Editar Moto" : "Nueva Moto"}</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#27272a] sticky top-0 bg-[#18181b] z-10 rounded-t-2xl sm:rounded-t-2xl">
+          <div>
+            <h2 className="m-0 text-[16px] font-semibold text-[#fafafa]">
+              {motorBike ? "Editar unidad" : "Nueva unidad"}
+            </h2>
+            <p className="m-0 text-[14px] text-[#a1a1aa]">
+              {motorBike ? "Modifica los datos de la moto" : "Completa los datos para registrar"}
+            </p>
+          </div>
           <button
             type="button"
-            className="close-button"
             onClick={onCancel}
             disabled={loading}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a] transition-all duration-200 cursor-pointer border-none bg-transparent disabled:opacity-40"
           >
-            ✕
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="motor-bike-form">
-          <div className="form-group">
-            <label htmlFor="name">
-              Nombre <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Ej: Moto 001"
-              className={errors.name ? "error" : ""}
-              disabled={loading}
-            />
-            {errors.name && (
-              <span className="error-message">{errors.name}</span>
-            )}
+        {/* Form body */}
+        <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
+          {/* Section: Información básica */}
+          <div>
+            <p className="text-[14px] font-semibold text-[#6366f1] uppercase tracking-wider mb-3 m-0">
+              Información básica
+            </p>
+            <div className="flex flex-col gap-4">
+              {/* Name */}
+              <div>
+                <label htmlFor="name" className={labelClass}>
+                  Nombre <span className="text-[#ef4444] normal-case tracking-normal">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Ej: Moto 001"
+                  disabled={loading}
+                  className={`${inputClass} ${errors.name ? "border-[#ef4444] focus:border-[#ef4444] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.15)]" : ""}`}
+                />
+                {errors.name && (
+                  <p className="text-[14px] text-[#ef4444] mt-1 m-0 flex items-center gap-1">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    {errors.name}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="trackingToken">Token de Seguimiento</label>
-            <input
-              type="text"
-              id="trackingToken"
-              name="trackingToken"
-              value={formData.trackingToken}
-              onChange={handleChange}
-              placeholder="Token de Traccar (opcional)"
-              disabled={loading}
-            />
-            <span className="form-hint">
-              Token de seguimiento de Traccar (opcional)
-            </span>
+          {/* Divider */}
+          <div className="h-px bg-[#27272a]" />
+
+          {/* Section: GPS */}
+          <div>
+            <p className="text-[14px] font-semibold text-[#6366f1] uppercase tracking-wider mb-3 m-0">
+              Configuración GPS
+            </p>
+            <div className="flex flex-col gap-4">
+              {/* Tracking Token */}
+              <div>
+                <label htmlFor="trackingToken" className={labelClass}>
+                  Token de seguimiento
+                </label>
+                <input
+                  type="text"
+                  id="trackingToken"
+                  name="trackingToken"
+                  value={formData.trackingToken}
+                  onChange={handleChange}
+                  placeholder="Token de Traccar (opcional)"
+                  disabled={loading}
+                  className={inputClass}
+                />
+                <p className="text-[14px] text-[#a1a1aa] mt-1 m-0">Token único del dispositivo GPS en Traccar</p>
+              </div>
+
+              {/* GPS Type */}
+              <div>
+                <label className={labelClass}>Tipo de GPS</label>
+                <div className="flex gap-2">
+                  {["TRACCAR", "DAGPS"].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      disabled={loading}
+                      onClick={() => setFormData((prev) => ({ ...prev, gpsType: type }))}
+                      className={`flex-1 py-2.5 px-3 rounded-lg text-[14px] font-semibold transition-all duration-200 cursor-pointer border ${
+                        formData.gpsType === type
+                          ? "bg-[#6366f1] border-[#6366f1] text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]"
+                          : "bg-[#09090b] border-[#71717a] text-[#a1a1aa] hover:border-[#a1a1aa] hover:text-[#a1a1aa]"
+                      } disabled:opacity-40 disabled:cursor-not-allowed`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Phone number */}
+              <div>
+                <label htmlFor="phoneNumber" className={labelClass}>
+                  Número de teléfono
+                </label>
+                <input
+                  type="text"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  placeholder="Número del dispositivo GPS"
+                  disabled={loading}
+                  className={inputClass}
+                />
+              </div>
+
+              {/* Phone company */}
+              <div>
+                <label htmlFor="phoneCompany" className={labelClass}>
+                  Compañía de teléfono
+                </label>
+                <input
+                  type="text"
+                  id="phoneCompany"
+                  name="phoneCompany"
+                  value={formData.phoneCompany}
+                  onChange={handleChange}
+                  placeholder="Claro, Movistar, Personal..."
+                  disabled={loading}
+                  className={inputClass}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="phoneNumber">Numero de telefono</label>
-            <input
-              type="text"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              placeholder="Numero de telefono GPS"
-              disabled={loading}
-            />
-            <span className="form-hint">
-              Numero de telefono del dispositivo GPS
-            </span>
-          </div>
+          {/* Divider */}
+          <div className="h-px bg-[#27272a]" />
 
-          <div className="form-group">
-            <label htmlFor="phoneCompany">Compania de telefono</label>
-            <input
-              type="text"
-              id="phoneCompany"
-              name="phoneCompany"
-              value={formData.phoneCompany}
-              onChange={handleChange}
-              placeholder="Claro, Movistar, etc."
-              disabled={loading}
-            />
-            <span className="form-hint">
-              Compania de telefono del dispositivo GPS
-            </span>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="gpsType">Tipo de GPS</label>
-            <select
-              type="text"
-              id="gpsType"
-              name="gpsType"
-              value={formData.gpsType}
-              onChange={handleChange}
-              disabled={loading}
+          {/* Section: Estado */}
+          <div>
+            <p className="text-[14px] font-semibold text-[#6366f1] uppercase tracking-wider mb-3 m-0">
+              Estado
+            </p>
+            <div
+              className="flex items-center justify-between px-4 py-3 rounded-xl"
+              style={{ background: "#09090b", border: "1px solid #27272a" }}
             >
-              <option value="TRACCAR">TRACCAR</option>
-              <option value="DAGPS">DAGPS</option>
-            </select>
-          </div>
-
-          <div className="form-group checkbox-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                name="isActive"
+              <div>
+                <p className="m-0 text-[14px] font-medium text-[#fafafa]">Moto activa</p>
+                <p className="m-0 text-[14px] text-[#a1a1aa]">Las motos inactivas no aparecen en el mapa</p>
+              </div>
+              <ToggleSwitch
                 checked={formData.isActive}
-                onChange={handleChange}
+                onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
                 disabled={loading}
               />
-              <span>Moto activa</span>
-            </label>
-            <span className="form-hint">
-              Las motos inactivas no aparecerán en el mapa
-            </span>
+            </div>
           </div>
 
-          <div className="form-actions">
+          {/* Actions */}
+          <div className="flex gap-3 pt-1 pb-safe">
             <button
               type="button"
-              className="btn-cancel"
               onClick={onCancel}
               disabled={loading}
+              className="flex-1 py-3 rounded-xl text-[14px] font-semibold text-[#a1a1aa] cursor-pointer transition-all duration-200 border-none bg-[#27272a] hover:bg-[#71717a] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>
-            <button type="submit" className="btn-save" disabled={loading}>
-              {loading ? "Guardando..." : motorBike ? "Actualizar" : "Crear"}
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 py-3 rounded-xl text-[14px] font-semibold text-white cursor-pointer transition-all duration-200 border-none flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{
+                background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                boxShadow: loading ? "none" : "0 4px 16px rgba(99, 102, 241, 0.3)",
+              }}
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="31.4" strokeDashoffset="10" opacity="0.3"/>
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                  </svg>
+                  Guardando...
+                </>
+              ) : motorBike ? "Actualizar" : "Crear unidad"}
             </button>
           </div>
         </form>

@@ -7,7 +7,6 @@ import BalanceView from "./views/BalanceView";
 import ReportsView from "./views/ReportsView";
 import Login from "./views/Login";
 import CategoriesView from "./views/CategoriesView";
-import "./App.css";
 
 function App() {
   return (

@@ -1,99 +1,271 @@
-:root {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+@theme {
+  /* === BRAND COLORS === */
+  --color-brand: #6366f1;
+  --color-brand-dark: #4f46e5;
+  --color-brand-light: #818cf8;
+  --color-brand-muted: #6366f120;
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-tap-highlight-color: transparent;
+  /* === SURFACE (Dark mode) === */
+  --color-surface-0: #09090b;
+  --color-surface-1: #18181b;
+  --color-surface-2: #27272a;
+  --color-surface-3: #71717a;
+
+  /* === TEXT (Dark mode) === */
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #a1a1aa;
+
+  /* === SEMANTIC === */
+  --color-success: #22c55e;
+  --color-success-bg: #22c55e15;
+  --color-danger: #ef4444;
+  --color-danger-bg: #ef444415;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #f59e0b15;
+  --color-info: #3b82f6;
+  --color-info-bg: #3b82f615;
+
+  /* === ANIMATIONS === */
+  --animate-fade-in: fadeIn 0.2s ease;
+  --animate-slide-up: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-in-right: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-float: float 8s infinite ease-in-out alternate;
+  --animate-shake: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  --animate-shimmer: shimmer 2s infinite linear;
+  --animate-pulse-soft: pulseSoft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(16px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slideInRight {
+    from { transform: translateX(24px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 30px) scale(1.05); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 }
 
-a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
+/* === GLOBAL BASE === */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-a:hover {
-    color: #535bf2;
-}
-
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    min-width: 320px;
-    min-height: 100vh;
-    height: 100vh;
-    overflow: hidden;
-    -webkit-overflow-scrolling: touch;
-    position: fixed;
-    width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #09090b;
+  color: #fafafa;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-#root {
-    width: 100%;
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height para móviles */
-    overflow: hidden;
+/* === CUSTOM SCROLLBAR === */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #71717a;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
 }
 
-h1 {
-    font-size: 1.5rem;
-    line-height: 1.2;
-    margin: 0;
+/* === TEXT SELECTION === */
+::selection {
+  background: #6366f130;
+  color: #818cf8;
 }
 
-h2 {
-    font-size: 1.25rem;
-    line-height: 1.3;
-    margin: 0;
+/* === SKELETON SHIMMER === */
+.skeleton {
+  background: linear-gradient(90deg, #27272a 25%, #71717a 50%, #27272a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 6px;
 }
 
-button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: inherit;
-    background-color: #1a1a1a;
-    cursor: pointer;
-    transition: border-color 0.25s;
+/* === GLASS EFFECT === */
+.glass {
+  background: rgba(24, 24, 27, 0.8);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-button:hover {
-    border-color: #646cff;
+.glass-light {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-button:focus,
-button:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
+/* === TOGGLE SWITCH === */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.toggle-track {
+  width: 44px;
+  height: 24px;
+  background: #71717a;
+  border-radius: 9999px;
+  transition: background 0.2s;
+  position: relative;
+}
+.toggle-switch input:checked + .toggle-track {
+  background: #6366f1;
+}
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.toggle-switch input:checked ~ .toggle-thumb {
+  transform: translateX(20px);
 }
 
-@media (prefers-color-scheme: light) {
-    :root {
-        color: #213547;
-        background-color: #ffffff;
-    }
+/* === NAV INDICATOR === */
+.nav-indicator {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-    a:hover {
-        color: #747bff;
-    }
+/* === FOCUS RING === */
+.focus-ring:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
 
-    button {
-        background-color: #f9f9f9;
-    }
+/* === LEAFLET OVERRIDES === */
+.leaflet-container {
+  font-family: 'Inter', sans-serif !important;
+  background: #09090b !important;
+}
+.leaflet-popup-content-wrapper {
+  background: #18181b !important;
+  color: #fafafa !important;
+  border-radius: 12px !important;
+  border: 1px solid #71717a !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  padding: 0 !important;
+}
+.leaflet-popup-content {
+  margin: 14px 16px !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+}
+.leaflet-popup-tip {
+  background: #18181b !important;
+}
+.leaflet-popup-close-button {
+  color: #a1a1aa !important;
+}
+.leaflet-popup-close-button:hover {
+  color: #fafafa !important;
+}
+.leaflet-control-zoom {
+  border: none !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+}
+.leaflet-control-zoom a {
+  background: #18181b !important;
+  color: #a1a1aa !important;
+  border: 1px solid #71717a !important;
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  font-size: 16px !important;
+  transition: all 0.15s !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #27272a !important;
+  color: #fafafa !important;
+}
+.leaflet-control-attribution {
+  background: rgba(9,9,11,0.7) !important;
+  color: #a1a1aa !important;
+  font-size: 10px !important;
+}
+.leaflet-control-attribution a {
+  color: #6366f1 !important;
+}
+.leaflet-tile-pane {
+  filter: brightness(0.7) contrast(1.1) saturate(0.8) !important;
+}
+
+/* === RECHARTS OVERRIDES === */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: #18181b !important;
+  border: 1px solid #71717a !important;
+  border-radius: 10px !important;
+}
+.recharts-legend-item-text {
+  color: #a1a1aa !important;
+  font-size: 12px !important;
 }
