@@ -485,13 +485,6 @@ function BalanceView() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="m-0 text-[15px] text-white">Cuentas</h2>
-              <button
-                onClick={() => setShowNewAccountForm(true)}
-                className="flex items-center gap-1.5 text-[14px] font-semibold text-[#6366f1] hover:text-[#818cf8] cursor-pointer border-none bg-transparent p-0 transition-colors"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" /></svg>
-                Nueva
-              </button>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
