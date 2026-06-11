@@ -51,8 +51,8 @@ function BottomNavigation() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {/* Blur backdrop */}
-      <div className="glass border-t rounded-full border-[#27272a] px-6 pt-2 pb-2">
-        <div className="flex justify-around gap-x-3 items-center max-w-md mx-auto">
+      <div className="glass border-t rounded-full border-[#27272a] px-2 sm:px-6 pt-2 pb-2">
+        <div className="flex justify-around sm:gap-x-3 items-center max-w-md mx-auto">
           {NAV_ITEMS.map((item) => {
             const active = location.pathname === item.matchPath;
             return (
@@ -73,7 +73,7 @@ function BottomNavigation() {
                 <span className={`transition-transform duration-200 ${active ? "scale-110" : "scale-100"}`}>
                   {item.icon(active)}
                 </span>
-                <span className={`text-[14px] font-medium leading-none transition-all duration-200 ${active ? "opacity-100" : "opacity-60"}`}>
+                <span className={`text-xs sm:text-[14px] font-medium leading-none transition-all duration-200 ${active ? "opacity-100" : "opacity-60"}`}>
                   {item.label}
                 </span>
               </button>

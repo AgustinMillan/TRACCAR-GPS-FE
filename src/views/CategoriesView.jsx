@@ -205,7 +205,7 @@ function CategoriesView() {
           onClick={handleCloseModal}
         >
           <div
-            className="w-full sm:max-w-[420px] animate-slide-up rounded-t-2xl sm:rounded-2xl"
+            className="w-full self-center mx-5 sm:max-w-[420px] animate-slide-up rounded-2xl"
             style={{ background: "#18181b", border: "1px solid #27272a", boxShadow: "0 24px 64px rgba(0,0,0,0.6)" }}
             onClick={(e) => e.stopPropagation()}
           >

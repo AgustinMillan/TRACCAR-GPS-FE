@@ -68,9 +68,8 @@ function MotorBikeList({ motorBikes, onEdit, onCalendar, loading }) {
                   : "bg-[#27272a]"
               }`}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill={moto.isActive ? "#22c55e" : "#a1a1aa"} xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 7c0-1.1-.9-2-2-2h-3l2 4h3c.55 0 1-.45 1-1v-1zm-8.5 0H8L5.5 4H2v2h2.28L7 11.05C5.22 11.28 4 12.82 4 14.5 4 16.43 5.57 18 7.5 18c1.76 0 3.22-1.3 3.46-3H13l1.5-4.5H10.5V7zM7.5 16C6.67 16 6 15.33 6 14.5S6.67 13 7.5 13s1.5.67 1.5 1.5S8.33 16 7.5 16zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm.5-5h-1l-1-3h3.42L17 11z"/>
-              </svg>
+              <svg fill={moto.isActive ? "currentColor" : "#a1a1aa"} stroke={moto.isActive ? "none" : "currentColor"} strokeWidth="0" viewBox="0 0 256 256" height="20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M216,120a41,41,0,0,0-6.6.55l-5.82-15.14A55.64,55.64,0,0,1,216,104a8,8,0,0,0,0-16H196.88L183.47,53.13A8,8,0,0,0,176,48H144a8,8,0,0,0,0,16h26.51l9.23,24H152c-18.5,0-33.5,4.31-43.37,12.46a16,16,0,0,1-16.76,2.07c-10.58-4.81-73.29-30.12-73.8-30.26a8,8,0,0,0-5,15.19S68.57,109.4,79.6,120.4A55.67,55.67,0,0,1,95.43,152H79.2a40,40,0,1,0,0,16h52.12a31.91,31.91,0,0,0,30.74-23.1,56,56,0,0,1,26.59-33.72l5.82,15.13A40,40,0,1,0,216,120ZM40,168H62.62a24,24,0,1,1,0-16H40a8,8,0,0,0,0,16Zm176,16a24,24,0,0,1-15.58-42.23l8.11,21.1a8,8,0,1,0,14.94-5.74L215.35,136l.65,0a24,24,0,0,1,0,48Z"></path></svg>
+
             </div>
 
             {/* Info */}
@@ -84,7 +83,8 @@ function MotorBikeList({ motorBikes, onEdit, onCalendar, loading }) {
                       : "bg-[#27272a] text-[#a1a1aa]"
                   }`}
                 >
-                  {moto.isActive ? "Activa" : "Inactiva"}
+                  {moto.isActive ? <p className="hidden sm:block">Activa</p> : <p className="hidden sm:block">Inactiva</p>}
+                  {moto.isActive ? <p className="block sm:hidden">•</p> : <p className="block sm:hidden">•</p>}
                 </span>
               </div>
 

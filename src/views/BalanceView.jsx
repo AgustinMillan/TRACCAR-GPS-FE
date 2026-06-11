@@ -41,7 +41,7 @@ function Modal({ onClose, children, title, accent = "#6366f1" }) {
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-[500px] max-h-[92dvh] overflow-y-auto animate-slide-up rounded-t-2xl sm:rounded-2xl"
+        className="w-full mx-5 self-center sm:max-w-[500px] max-h-[92dvh] overflow-y-auto animate-slide-up rounded-2xl"
         style={{
           background: "#18181b",
           border: "1px solid #27272a",
@@ -58,7 +58,7 @@ function Modal({ onClose, children, title, accent = "#6366f1" }) {
             onClick={onClose}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a] transition-all cursor-pointer border-none bg-transparent"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
             </svg>
           </button>
@@ -543,9 +543,9 @@ function BalanceView() {
                         </div>
                         <button
                           onClick={() => handleEditAccount(account)}
-                          className="w-6 h-6 flex items-center justify-center rounded-md text-[#a1a1aa] hover:text-[#a1a1aa] hover:bg-[#27272a] transition-all cursor-pointer border-none bg-transparent shrink-0 ml-1"
+                          className="w-8 h-8 flex items-center justify-center rounded-md text-[#6366f1] hover:text-[#818cf8] hover:bg-[#27272a] transition-all cursor-pointer border border-[#6366f1] bg-transparent shrink-0 ml-1"
                         >
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                           </svg>
                         </button>
@@ -565,49 +565,18 @@ function BalanceView() {
               ))}
 
               {/* Add account card */}
-              {!showNewAccountForm ? (
-                <button
-                  onClick={() => setShowNewAccountForm(true)}
-                  className="rounded-xl flex flex-col items-center justify-center min-h-[100px] cursor-pointer border-none transition-all duration-200 text-[#a1a1aa] hover:text-[#a1a1aa]"
-                  style={{ background: "#18181b", border: "1.5px dashed #27272a" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.color = "#6366f1"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#27272a"; e.currentTarget.style.color = "#a1a1aa"; }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="mb-1">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                  </svg>
-                  <span className="text-[14px] font-medium">Nueva cuenta</span>
-                </button>
-              ) : (
-                <div
-                  className="rounded-xl p-3 flex flex-col gap-2"
-                  style={{ background: "#18181b", border: "1px solid #6366f1" }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Nombre de la cuenta"
-                    value={newAccount.name}
-                    onChange={(e) => setNewAccount({ name: e.target.value, alias: newAccount.alias })}
-                    autoFocus
-                    className={inputCls}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Alias (opcional)"
-                    value={newAccount.alias}
-                    onChange={(e) => setNewAccount({ name: newAccount.name, alias: e.target.value })}
-                    className={inputCls}
-                  />
-                  <div className="flex gap-2">
-                    <button onClick={handleAddAccount} className={`${btnPrimary} flex-1 py-2 text-[14px]`} style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)" }}>
-                      Crear
-                    </button>
-                    <button onClick={() => { setShowNewAccountForm(false); setNewAccount({ name: "", alias: "" }); }} className={`${btnSecondary} flex-1 py-2 text-[14px]`}>
-                      Cancelar
-                    </button>
-                  </div>
-                </div>
-              )}
+              <button
+                onClick={() => setShowNewAccountForm(true)}
+                className="rounded-xl flex flex-col items-center justify-center min-h-[100px] cursor-pointer border-none transition-all duration-200 text-[#a1a1aa] hover:text-[#a1a1aa]"
+                style={{ background: "#18181b", border: "1.5px dashed #27272a" }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.color = "#6366f1"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#27272a"; e.currentTarget.style.color = "#a1a1aa"; }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="mb-1">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg>
+                <span className="text-[14px] font-medium">Nueva cuenta</span>
+              </button>
             </div>
           </div>
 
@@ -765,9 +734,9 @@ function BalanceView() {
                                   {!payment.isTransfer && (
                                     <button
                                       onClick={() => handleEditPayment(payment)}
-                                      className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-[#a1a1aa] hover:text-[#a1a1aa] hover:bg-[#27272a] transition-all cursor-pointer border-none bg-transparent"
+                                      className="shrink-0 w-8 h-8 flex items-center justify-center rounded-md text-[#6366f1] hover:text-[#818cf8] hover:bg-[#27272a] transition-all cursor-pointer border border-[#6366f1] bg-transparent"
                                     >
-                                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                       </svg>
                                     </button>
@@ -848,6 +817,43 @@ function BalanceView() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* ══ NEW ACCOUNT FORM MODAL ══ */}
+      {showNewAccountForm && (
+        <Modal title="Crear Cuenta" onClose={() => { setShowNewAccountForm(false); setNewAccount({ name: "", alias: "" }); }}>
+          <div className="px-5 py-5 flex flex-col gap-4">
+            <div>
+              <label className={labelCls}>Nombre *</label>
+              <input
+                type="text"
+                placeholder="Nombre de la cuenta"
+                value={newAccount.name}
+                onChange={(e) => setNewAccount({ name: e.target.value, alias: newAccount.alias })}
+                autoFocus
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Alias (opcional)</label>
+              <input
+                type="text"
+                placeholder="Alias"
+                value={newAccount.alias}
+                onChange={(e) => setNewAccount({ name: newAccount.name, alias: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={() => { setShowNewAccountForm(false); setNewAccount({ name: "", alias: "" }); }} className={`${btnSecondary} flex-1`}>
+                Cancelar
+              </button>
+              <button onClick={handleAddAccount} className={`${btnPrimary} flex-1`} style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)" }}>
+                Crear
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* ══ INCOME FORM MODAL ══ */}

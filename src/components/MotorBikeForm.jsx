@@ -88,7 +88,7 @@ function MotorBikeForm({ motorBike, onSave, onCancel, loading }) {
       onClick={onCancel}
     >
       <div
-        className="w-full sm:max-w-[480px] max-h-[92dvh] overflow-y-auto animate-slide-up rounded-t-2xl sm:rounded-2xl"
+        className="w-full self-center mx-5 sm:max-w-[480px] max-h-[92dvh] overflow-y-auto animate-slide-up rounded-2xl"
         style={{
           background: "#18181b",
           border: "1px solid #27272a",
@@ -112,7 +112,7 @@ function MotorBikeForm({ motorBike, onSave, onCancel, loading }) {
             disabled={loading}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-[#a1a1aa] hover:text-[#fafafa] hover:bg-[#27272a] transition-all duration-200 cursor-pointer border-none bg-transparent disabled:opacity-40"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
           </button>
