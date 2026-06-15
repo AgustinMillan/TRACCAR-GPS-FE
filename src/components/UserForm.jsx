@@ -98,7 +98,6 @@ function UserForm({ user, onSave, onCancel, loading }) {
     <div
       className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in"
       style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
-      onClick={onCancel}
     >
       <div
         className="w-full self-center mx-5 sm:max-w-[480px] max-h-[92dvh] overflow-y-auto animate-slide-up rounded-2xl"

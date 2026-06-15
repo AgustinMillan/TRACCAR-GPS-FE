@@ -39,7 +39,6 @@ function Modal({ onClose, children, title, accent = "#6366f1" }) {
     <div
       className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in"
       style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)" }}
-      onClick={onClose}
     >
       <div
         className="w-full mx-5 self-center sm:max-w-[500px] max-h-[92dvh] overflow-y-auto animate-slide-up rounded-2xl"

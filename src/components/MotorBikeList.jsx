@@ -74,7 +74,7 @@ function MotorBikeList({ motorBikes, clients, onEdit, onCalendar, loading }) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex w-fit items-center gap-2 mb-0.5">
+              <div className="flex items-center gap-2 mb-0.5">
                 <h3 className="m-0 text-[14px] font-semibold text-[#fafafa] truncate">{moto.name}</h3>
                 <span
                   className={`shrink-0 text-[14px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
@@ -86,9 +86,15 @@ function MotorBikeList({ motorBikes, clients, onEdit, onCalendar, loading }) {
                   {moto.isActive ? <p className="hidden sm:block">Activa</p> : <p className="hidden sm:block">Inactiva</p>}
                   {moto.isActive ? <p className="block sm:hidden">•</p> : <p className="block sm:hidden">•</p>}
                 </span>
+
+                {moto.domain && (
+                  <span className="text-[13px] font-mono bg-[#27272a] text-[#fafafa] px-2 py-0.5 rounded-md border border-[#3f3f46]">
+                    {moto.domain}
+                  </span>
+                )}
               </div>
 
-              <div className="flex w-fit items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-y-1 gap-x-3 flex-wrap">
                 {moto.debt > 0 ? (
                   <span className="text-[14px] font-semibold text-[#ef4444]">
                     Deuda: ${moto.debt.toLocaleString("es-AR")}
@@ -105,12 +111,6 @@ function MotorBikeList({ motorBikes, clients, onEdit, onCalendar, loading }) {
               </div>
 
               <div className="flex items-center gap-3 flex-wrap mt-1">
-                {moto.domain && (
-                  <span className="text-[13px] font-mono bg-[#27272a] text-[#fafafa] px-2 py-0.5 rounded-md border border-[#3f3f46]">
-                    {moto.domain}
-                  </span>
-                )}
-                
                 {(() => {
                   const clientName = moto.client?.name || (clients && clients.find(c => c.id === moto.clientId)?.name);
                   return clientName ? (
@@ -123,31 +123,25 @@ function MotorBikeList({ motorBikes, clients, onEdit, onCalendar, loading }) {
                   ) : null;
                 })()}
               </div>
-
-              {moto.trackingToken && (
-                <p className="m-0 mt-1 text-[13px] text-[#71717a] font-mono truncate">
-                  Token: {moto.trackingToken.substring(0, 16)}...
-                </p>
-              )}
             </div>
 
             {/* Actions */}
             <div className="flex flex-col items-center gap-1 shrink-0">
               <button
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-[#a1a1aa] hover:text-[#a1a1aa] hover:bg-[#27272a] transition-all duration-150 cursor-pointer border-none bg-transparent"
+                className="p-2 flex items-center justify-center text-[#a1a1aa] hover:text-[#a1a1aa] hover:bg-[#27272a] transition-all duration-150 cursor-pointer border-none bg-transparent"
                 onClick={() => onEdit(moto)}
                 title="Editar"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                 </svg>
               </button>
               <button
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-[#a1a1aa] hover:text-[#a1a1aa] hover:bg-[#27272a] transition-all duration-150 cursor-pointer border-none bg-transparent"
+                className="p-2 pt-2.5 flex items-center justify-center text-[#a1a1aa] hover:text-[#a1a1aa] hover:bg-[#27272a] transition-all duration-150 cursor-pointer border-t border-white/30 bg-transparent"
                 onClick={() => onCalendar(moto)}
                 title="Calendario de pagos"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
                 </svg>
               </button>
