@@ -1,4 +1,5 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext } from "react";
+import { loginUser } from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -11,20 +12,26 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const login = (username, password) => {
-    // Hardcoded credentials for now
-    if (username === "admin" && password === "Contraseña8521") {
-      const userData = { username: "admin", role: "admin" };
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-      return true;
+  const login = async (username, password) => {
+    try {
+      const data = await loginUser(username, password);
+      if (data && data.success && data.token) {
+        setUser(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
-    return false;
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (

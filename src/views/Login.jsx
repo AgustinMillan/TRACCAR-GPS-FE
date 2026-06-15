@@ -10,7 +10,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -19,12 +19,15 @@ const Login = () => {
       return;
     }
 
-    const success = login(username, password);
-
-    if (success) {
-      navigate("/");
-    } else {
-      setError("Credenciales incorrectas");
+    try {
+      const success = await login(username, password);
+      if (success) {
+        navigate("/");
+      } else {
+        setError("Credenciales incorrectas");
+      }
+    } catch (err) {
+      setError(err.message || "Error al iniciar sesión");
     }
   };
 

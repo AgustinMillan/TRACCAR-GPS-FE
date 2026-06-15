@@ -13,6 +13,7 @@ import {
   getMotorBikeDebts,
 } from "../services/motorBikeService";
 import CalendarioPagos from "../components/Calendar";
+import { useAuth } from "../context/AuthContext";
 
 import { getCategories } from "../services/categoryService";
 
@@ -84,6 +85,7 @@ const Spinner = ({ size = 13 }) => (
 );
 
 function BalanceView() {
+  const { user } = useAuth();
   const [categories, setCategories] = useState([]);
   const [editPaymentId, setEditPaymentId] = useState(null);
   const [editPaymentData, setEditPaymentData] = useState({
@@ -482,10 +484,11 @@ function BalanceView() {
           })()}
 
           {/* ══ ACCOUNTS SECTION ══ */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="m-0 text-[15px] text-white">Cuentas</h2>
-            </div>
+          {user?.role !== "SUPP" && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="m-0 text-[15px] text-white">Cuentas</h2>
+              </div>
 
             <div className="grid grid-cols-2 gap-2.5">
               {accounts.map((account) => (
@@ -572,6 +575,7 @@ function BalanceView() {
               </button>
             </div>
           </div>
+          )}
 
           {/* ══ TRANSACTIONS SECTION ══ */}
           <div>
@@ -784,30 +788,34 @@ function BalanceView() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/></svg>
               Egreso
             </button>
-            <button
-              onClick={() => { setShowTransactionFormPayment(false); setShowTransactionFormBill(false); openTransferModal("save"); }}
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 active:scale-[0.98] flex-1 text-[#f59e0b] hover:bg-[#f59e0b15] cursor-pointer"
-              style={{ background: "rgba(245, 158, 11, 0.05)", border: "1px solid rgba(245, 158, 11, 0.4)" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>
-              Ahorrar
-            </button>
-            <button
-              onClick={() => { setShowTransactionFormPayment(false); setShowTransactionFormBill(false); openTransferModal("withdraw"); }}
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 active:scale-[0.98] flex-1 text-[#8b5cf6] hover:bg-[#8b5cf615] cursor-pointer"
-              style={{ background: "rgba(139, 92, 246, 0.05)", border: "1px solid rgba(139, 92, 246, 0.4)" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
-              Retirar
-            </button>
-            <button
-              onClick={() => { setShowTransactionFormPayment(false); setShowTransactionFormBill(false); openTransferModal("between"); }}
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 active:scale-[0.98] w-full sm:flex-1 text-[#0ea5e9] hover:bg-[#0ea5e915] cursor-pointer"
-              style={{ background: "rgba(14, 165, 233, 0.05)", border: "1px solid rgba(14, 165, 233, 0.4)" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
-              Transferir
-            </button>
+            {user?.role !== "SUPP" && (
+              <>
+                <button
+                  onClick={() => { setShowTransactionFormPayment(false); setShowTransactionFormBill(false); openTransferModal("save"); }}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 active:scale-[0.98] flex-1 text-[#f59e0b] hover:bg-[#f59e0b15] cursor-pointer"
+                  style={{ background: "rgba(245, 158, 11, 0.05)", border: "1px solid rgba(245, 158, 11, 0.4)" }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>
+                  Ahorrar
+                </button>
+                <button
+                  onClick={() => { setShowTransactionFormPayment(false); setShowTransactionFormBill(false); openTransferModal("withdraw"); }}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 active:scale-[0.98] flex-1 text-[#8b5cf6] hover:bg-[#8b5cf615] cursor-pointer"
+                  style={{ background: "rgba(139, 92, 246, 0.05)", border: "1px solid rgba(139, 92, 246, 0.4)" }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                  Retirar
+                </button>
+                <button
+                  onClick={() => { setShowTransactionFormPayment(false); setShowTransactionFormBill(false); openTransferModal("between"); }}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 active:scale-[0.98] w-full sm:flex-1 text-[#0ea5e9] hover:bg-[#0ea5e915] cursor-pointer"
+                  style={{ background: "rgba(14, 165, 233, 0.05)", border: "1px solid rgba(14, 165, 233, 0.4)" }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+                  Transferir
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

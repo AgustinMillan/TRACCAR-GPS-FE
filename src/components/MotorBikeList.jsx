@@ -21,7 +21,7 @@ const SkeletonCard = () => (
   </div>
 );
 
-function MotorBikeList({ motorBikes, onEdit, onCalendar, loading }) {
+function MotorBikeList({ motorBikes, clients, onEdit, onCalendar, loading }) {
   if (loading) {
     return (
       <div className="flex flex-col gap-3 w-full">
@@ -74,7 +74,7 @@ function MotorBikeList({ motorBikes, onEdit, onCalendar, loading }) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
+              <div className="flex w-fit items-center gap-2 mb-0.5">
                 <h3 className="m-0 text-[14px] font-semibold text-[#fafafa] truncate">{moto.name}</h3>
                 <span
                   className={`shrink-0 text-[14px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
@@ -88,7 +88,7 @@ function MotorBikeList({ motorBikes, onEdit, onCalendar, loading }) {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex w-fit items-center gap-3 flex-wrap">
                 {moto.debt > 0 ? (
                   <span className="text-[14px] font-semibold text-[#ef4444]">
                     Deuda: ${moto.debt.toLocaleString("es-AR")}
@@ -104,15 +104,35 @@ function MotorBikeList({ motorBikes, onEdit, onCalendar, loading }) {
                 )}
               </div>
 
+              <div className="flex items-center gap-3 flex-wrap mt-1">
+                {moto.domain && (
+                  <span className="text-[13px] font-mono bg-[#27272a] text-[#fafafa] px-2 py-0.5 rounded-md border border-[#3f3f46]">
+                    {moto.domain}
+                  </span>
+                )}
+                
+                {(() => {
+                  const clientName = moto.client?.name || (clients && clients.find(c => c.id === moto.clientId)?.name);
+                  return clientName ? (
+                    <span className="text-[13px] text-[#a1a1aa] flex items-center gap-1">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
+                      {clientName}
+                    </span>
+                  ) : null;
+                })()}
+              </div>
+
               {moto.trackingToken && (
-                <p className="m-0 mt-0.5 text-[14px] text-[#a1a1aa] font-mono truncate">
-                  {moto.trackingToken.substring(0, 24)}...
+                <p className="m-0 mt-1 text-[13px] text-[#71717a] font-mono truncate">
+                  Token: {moto.trackingToken.substring(0, 16)}...
                 </p>
               )}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex flex-col items-center gap-1 shrink-0">
               <button
                 className="w-8 h-8 flex items-center justify-center rounded-lg text-[#a1a1aa] hover:text-[#a1a1aa] hover:bg-[#27272a] transition-all duration-150 cursor-pointer border-none bg-transparent"
                 onClick={() => onEdit(moto)}

@@ -69,48 +69,42 @@ function FileUploader({ label, value, onChange, disabled }) {
   );
 }
 
-function MotorBikeForm({ motorBike, clients, onSave, onCancel, loading }) {
+function ClientForm({ client, onSave, onCancel, loading }) {
   const [formData, setFormData] = useState({
     name: "",
-    domain: "",
-    clientId: "",
-    seguro: "",
-    trackingToken: "",
     phoneNumber: "",
-    phoneCompany: "",
-    gpsType: "TRACCAR",
+    dni: "",
+    driverLicense: "",
+    serviceBill: "",
+    observations: "",
     isActive: true,
   });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (motorBike) {
+    if (client) {
       setFormData({
-        name: motorBike.name || "",
-        domain: motorBike.domain || "",
-        clientId: motorBike.clientId || "",
-        seguro: motorBike.seguro || "",
-        trackingToken: motorBike.trackingToken || "",
-        isActive: motorBike.isActive !== undefined ? motorBike.isActive : true,
-        phoneNumber: motorBike.phoneNumber || "",
-        phoneCompany: motorBike.phoneCompany || "",
-        gpsType: motorBike.gpsType || "TRACCAR",
+        name: client.name || "",
+        phoneNumber: client.phoneNumber || "",
+        dni: client.dni || "",
+        driverLicense: client.driverLicense || "",
+        serviceBill: client.serviceBill || "",
+        observations: client.observations || "",
+        isActive: client.isActive !== undefined ? client.isActive : true,
       });
     } else {
       setFormData({
         name: "",
-        domain: "",
-        clientId: "",
-        seguro: "",
-        trackingToken: "",
-        isActive: true,
         phoneNumber: "",
-        phoneCompany: "",
-        gpsType: "TRACCAR",
+        dni: "",
+        driverLicense: "",
+        serviceBill: "",
+        observations: "",
+        isActive: true,
       });
     }
     setErrors({});
-  }, [motorBike]);
+  }, [client]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -154,14 +148,13 @@ function MotorBikeForm({ motorBike, clients, onSave, onCancel, loading }) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#27272a] sticky top-0 bg-[#18181b] z-10 rounded-t-2xl sm:rounded-t-2xl">
           <div>
             <h2 className="m-0 text-[16px] font-semibold text-[#fafafa]">
-              {motorBike ? "Editar unidad" : "Nueva unidad"}
+              {client ? "Editar Cliente" : "Nuevo Cliente"}
             </h2>
             <p className="m-0 text-[14px] text-[#a1a1aa]">
-              {motorBike ? "Modifica los datos de la moto" : "Completa los datos para registrar"}
+              {client ? "Modifica los datos del cliente" : "Completa los datos para registrar"}
             </p>
           </div>
           <button
@@ -176,15 +169,12 @@ function MotorBikeForm({ motorBike, clients, onSave, onCancel, loading }) {
           </button>
         </div>
 
-        {/* Form body */}
         <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
-          {/* Section: Información básica */}
           <div>
             <p className="text-[14px] font-semibold text-[#6366f1] uppercase tracking-wider mb-3 m-0">
               Información básica
             </p>
             <div className="flex flex-col gap-4">
-              {/* Name */}
               <div>
                 <label htmlFor="name" className={labelClass}>
                   Nombre <span className="text-[#ef4444] normal-case tracking-normal">*</span>
@@ -195,147 +185,25 @@ function MotorBikeForm({ motorBike, clients, onSave, onCancel, loading }) {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Ej: Moto 001"
+                  placeholder="Ej: Agustin Millan"
                   disabled={loading}
                   className={`${inputClass} ${errors.name ? "border-[#ef4444] focus:border-[#ef4444] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.15)]" : ""}`}
                 />
                 {errors.name && (
                   <p className="text-[14px] text-[#ef4444] mt-1 m-0 flex items-center gap-1">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                     {errors.name}
                   </p>
                 )}
               </div>
-              
-              {/* Domain */}
               <div>
-                <label htmlFor="domain" className={labelClass}>
-                  Patente
-                </label>
-                <input
-                  type="text"
-                  id="domain"
-                  name="domain"
-                  value={formData.domain}
-                  onChange={handleChange}
-                  placeholder="Ej: ABC 123"
-                  disabled={loading}
-                  className={inputClass}
-                />
-              </div>
-
-              {/* Client ID */}
-              <div>
-                <label htmlFor="clientId" className={labelClass}>
-                  Dueño (Cliente)
-                </label>
-                <select
-                  id="clientId"
-                  name="clientId"
-                  value={formData.clientId}
-                  onChange={handleChange}
-                  disabled={loading}
-                  className={inputClass}
-                >
-                  <option value="">-- Seleccionar Cliente --</option>
-                  {clients && clients.filter(c => c.isActive).map(client => (
-                    <option key={client.id} value={client.id}>
-                      {client.name} {client.phoneNumber ? `(${client.phoneNumber})` : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Seguro */}
-              <div>
-                <FileUploader 
-                  label="Documento de Seguro" 
-                  value={formData.seguro} 
-                  onChange={(url) => setFormData(prev => ({ ...prev, seguro: url }))} 
-                  disabled={loading} 
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="h-px bg-[#27272a]" />
-
-          {/* Section: GPS */}
-          <div>
-            <p className="text-[14px] font-semibold text-[#6366f1] uppercase tracking-wider mb-3 m-0">
-              Configuración GPS
-            </p>
-            <div className="flex flex-col gap-4">
-              {/* Tracking Token */}
-              <div>
-                <label htmlFor="trackingToken" className={labelClass}>
-                  Token de seguimiento
-                </label>
-                <input
-                  type="text"
-                  id="trackingToken"
-                  name="trackingToken"
-                  value={formData.trackingToken}
-                  onChange={handleChange}
-                  placeholder="Token de Traccar (opcional)"
-                  disabled={loading}
-                  className={inputClass}
-                />
-                <p className="text-[14px] text-[#a1a1aa] mt-1 m-0">Token único del dispositivo GPS en Traccar</p>
-              </div>
-
-              {/* GPS Type */}
-              <div>
-                <label className={labelClass}>Tipo de GPS</label>
-                <div className="flex gap-2">
-                  {["TRACCAR", "DAGPS"].map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      disabled={loading}
-                      onClick={() => setFormData((prev) => ({ ...prev, gpsType: type }))}
-                      className={`flex-1 py-2.5 px-3 rounded-lg text-[14px] font-semibold transition-all duration-200 cursor-pointer border ${
-                        formData.gpsType === type
-                          ? "bg-[#6366f1] border-[#6366f1] text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]"
-                          : "bg-[#09090b] border-[#71717a] text-[#a1a1aa] hover:border-[#a1a1aa] hover:text-[#a1a1aa]"
-                      } disabled:opacity-40 disabled:cursor-not-allowed`}
-                    >
-                      {type}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Phone number */}
-              <div>
-                <label htmlFor="phoneNumber" className={labelClass}>
-                  Número de teléfono
-                </label>
+                <label htmlFor="phoneNumber" className={labelClass}>Teléfono</label>
                 <input
                   type="text"
                   id="phoneNumber"
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  placeholder="Número del dispositivo GPS"
-                  disabled={loading}
-                  className={inputClass}
-                />
-              </div>
-
-              {/* Phone company */}
-              <div>
-                <label htmlFor="phoneCompany" className={labelClass}>
-                  Compañía de teléfono
-                </label>
-                <input
-                  type="text"
-                  id="phoneCompany"
-                  name="phoneCompany"
-                  value={formData.phoneCompany}
-                  onChange={handleChange}
-                  placeholder="Claro, Movistar, Personal..."
+                  placeholder="Ej: +5491100002222"
                   disabled={loading}
                   className={inputClass}
                 />
@@ -343,21 +211,57 @@ function MotorBikeForm({ motorBike, clients, onSave, onCancel, loading }) {
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-[#27272a]" />
 
-          {/* Section: Estado */}
           <div>
             <p className="text-[14px] font-semibold text-[#6366f1] uppercase tracking-wider mb-3 m-0">
-              Estado
+              Documentos
             </p>
-            <div
-              className="flex items-center justify-between px-4 py-3 rounded-xl"
-              style={{ background: "#09090b", border: "1px solid #27272a" }}
-            >
+            <div className="flex flex-col gap-4">
+              <FileUploader 
+                label="DNI" 
+                value={formData.dni} 
+                onChange={(url) => setFormData(prev => ({ ...prev, dni: url }))} 
+                disabled={loading} 
+              />
+              <FileUploader 
+                label="Licencia de Conducir" 
+                value={formData.driverLicense} 
+                onChange={(url) => setFormData(prev => ({ ...prev, driverLicense: url }))} 
+                disabled={loading} 
+              />
+              <FileUploader 
+                label="Factura de Servicio" 
+                value={formData.serviceBill} 
+                onChange={(url) => setFormData(prev => ({ ...prev, serviceBill: url }))} 
+                disabled={loading} 
+              />
+            </div>
+          </div>
+
+          <div className="h-px bg-[#27272a]" />
+          
+          <div>
+            <label htmlFor="observations" className={labelClass}>Observaciones</label>
+            <textarea
+              id="observations"
+              name="observations"
+              value={formData.observations}
+              onChange={handleChange}
+              placeholder="Notas adicionales..."
+              disabled={loading}
+              rows={3}
+              className={`${inputClass} resize-none`}
+            />
+          </div>
+
+          <div className="h-px bg-[#27272a]" />
+
+          <div>
+            <p className="text-[14px] font-semibold text-[#6366f1] uppercase tracking-wider mb-3 m-0">Estado</p>
+            <div className="flex items-center justify-between px-4 py-3 rounded-xl" style={{ background: "#09090b", border: "1px solid #27272a" }}>
               <div>
-                <p className="m-0 text-[14px] font-medium text-[#fafafa]">Moto activa</p>
-                <p className="m-0 text-[14px] text-[#a1a1aa]">Las motos inactivas no aparecen en el mapa</p>
+                <p className="m-0 text-[14px] font-medium text-[#fafafa]">Cliente activo</p>
               </div>
               <ToggleSwitch
                 checked={formData.isActive}
@@ -367,7 +271,6 @@ function MotorBikeForm({ motorBike, clients, onSave, onCancel, loading }) {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3 pt-1 pb-safe">
             <button
               type="button"
@@ -386,15 +289,7 @@ function MotorBikeForm({ motorBike, clients, onSave, onCancel, loading }) {
                 boxShadow: loading ? "none" : "0 4px 16px rgba(99, 102, 241, 0.3)",
               }}
             >
-              {loading ? (
-                <>
-                  <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="31.4" strokeDashoffset="10" opacity="0.3"/>
-                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                  </svg>
-                  Guardando...
-                </>
-              ) : motorBike ? "Actualizar" : "Crear unidad"}
+              {loading ? "Guardando..." : client ? "Actualizar" : "Crear Cliente"}
             </button>
           </div>
         </form>
@@ -403,4 +298,4 @@ function MotorBikeForm({ motorBike, clients, onSave, onCancel, loading }) {
   );
 }
 
-export default MotorBikeForm;
+export default ClientForm;

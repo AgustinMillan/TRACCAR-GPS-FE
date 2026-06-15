@@ -7,6 +7,8 @@ import BalanceView from "./views/BalanceView";
 import ReportsView from "./views/ReportsView";
 import Login from "./views/Login";
 import CategoriesView from "./views/CategoriesView";
+import ClientsView from "./views/ClientsView";
+import UsersView from "./views/UsersView";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/balance" element={<BalanceView />} />
           <Route path="/reports" element={<ReportsView />} />
           <Route path="/categories" element={<CategoriesView />} />
+          <Route path="/clients" element={<ClientsView />} />
+          <Route path="/users" element={<UsersView />} />
         </Route>
       </Route>
 

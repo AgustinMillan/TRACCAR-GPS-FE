@@ -1,4 +1,4 @@
-import { getApiUrl, API_CONFIG } from '../config/api'
+import { getApiUrl, API_CONFIG, getAuthHeaders } from '../config/api'
 
 const API_BASE_URL = getApiUrl(API_CONFIG.ENDPOINTS.MOTOR_BIKE_DAYS)
 
@@ -11,9 +11,7 @@ export const createMotorBikeDay = async (data) => {
     try {
         const response = await fetch(API_BASE_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data),
         })
         const result = await response.json()
@@ -37,7 +35,7 @@ export const createMotorBikeDay = async (data) => {
 export const getMotorBikeDays = async (motorBikeId, year, month) => {
     try {
         const url = `${API_BASE_URL}/${motorBikeId}?year=${year}&month=${month}`
-        const response = await fetch(url)
+        const response = await fetch(url, { headers: getAuthHeaders() })
         const result = await response.json()
         if (!response.ok || !result.success) {
             throw new Error(result.error || `Error al obtener calendario: ${response.statusText}`)
@@ -59,9 +57,7 @@ export const updateMotorBikeDay = async (id, data) => {
     try {
         const response = await fetch(`${API_BASE_URL}/${id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data),
         })
         const result = await response.json()

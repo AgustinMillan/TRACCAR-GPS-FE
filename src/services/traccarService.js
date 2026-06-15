@@ -1,4 +1,4 @@
-import { getApiUrl, API_CONFIG } from "../config/api";
+import { getApiUrl, API_CONFIG, getAuthHeaders } from "../config/api";
 
 const POSITIONS_BASE_URL = getApiUrl(API_CONFIG.ENDPOINTS.TRACCAR_POSITIONS);
 
@@ -9,7 +9,7 @@ const POSITIONS_BASE_URL = getApiUrl(API_CONFIG.ENDPOINTS.TRACCAR_POSITIONS);
  */
 export const getMotorBikePosition = async (motorBikeId) => {
   try {
-    const response = await fetch(`${POSITIONS_BASE_URL}/${motorBikeId}`);
+    const response = await fetch(`${POSITIONS_BASE_URL}/${motorBikeId}`, { headers: getAuthHeaders() });
     if (!response.ok) {
       throw new Error(`Error al obtener la posición: ${response.statusText}`);
     }

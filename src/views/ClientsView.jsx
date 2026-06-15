@@ -1,68 +1,65 @@
 import { useState, useEffect } from "react";
-import MotorBikeList from "../components/MotorBikeList";
-import MotorBikeForm from "../components/MotorBikeForm";
+import ClientList from "../components/ClientList";
+import ClientForm from "../components/ClientForm";
 import {
-  getAllMotorBikes,
-  createMotorBike,
-  updateMotorBike,
-} from "../services/motorBikeService";
-import { getAllClients } from "../services/clientService";
-import CalendarioPagos from "../components/Calendar";
+  getAllClients,
+  createClient,
+  updateClient,
+  getClientById
+} from "../services/clientService";
 
-function MotorBikeManagement() {
-  const [motorBikes, setMotorBikes] = useState([]);
+function ClientsView() {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editingMotorBike, setEditingMotorBike] = useState(null);
-  const [calandarMotorBike, setCalendarMotorBike] = useState(null);
-  const [showCalendar, setShowCalendar] = useState(false);
+  const [editingClient, setEditingClient] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadMotorBikes();
+    loadClients();
   }, []);
 
-  const loadMotorBikes = async () => {
+  const loadClients = async () => {
     try {
       setLoading(true);
       setError(null);
-      const [motorBikesData, clientsData] = await Promise.all([
-        getAllMotorBikes(),
-        getAllClients().catch(() => []) // Fallback in case clients fail
-      ]);
-      setMotorBikes(motorBikesData);
-      setClients(clientsData);
+      const data = await getAllClients();
+      setClients(data);
     } catch (err) {
-      console.error("Error al cargar motos:", err);
-      setError(err.message || "Error al cargar las motos");
+      console.error("Error al cargar clientes:", err);
+      setError(err.message || "Error al cargar los clientes");
     } finally {
       setLoading(false);
     }
   };
 
   const handleAddNew = () => {
-    setEditingMotorBike(null);
+    setEditingClient(null);
     setShowForm(true);
     setError(null);
   };
 
-  const handleEdit = (motorBike) => {
-    setEditingMotorBike(motorBike);
-    setShowForm(true);
-    setError(null);
+  const handleEdit = async (clientSimplified) => {
+    try {
+      setLoading(true);
+      setError(null);
+      // Fetch the full details before showing the form
+      const fullClient = await getClientById(clientSimplified.id);
+      setEditingClient(fullClient);
+      setShowForm(true);
+    } catch (err) {
+      console.error("Error al obtener detalle del cliente:", err);
+      setError(err.message || "Error al obtener el cliente");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseForm = () => {
     setShowForm(false);
-    setEditingMotorBike(null);
+    setEditingClient(null);
     setError(null);
-  };
-
-  const handleCalendar = (motorBike) => {
-    setCalendarMotorBike(motorBike);
-    setShowCalendar(true);
   };
 
   const handleSave = async (formData) => {
@@ -70,24 +67,24 @@ function MotorBikeManagement() {
       setFormLoading(true);
       setError(null);
 
-      if (editingMotorBike) {
-        await updateMotorBike(editingMotorBike.id, formData);
+      if (editingClient) {
+        await updateClient(editingClient.id, formData);
       } else {
-        await createMotorBike(formData);
+        await createClient(formData);
       }
 
-      await loadMotorBikes();
+      await loadClients();
       handleCloseForm();
     } catch (err) {
-      console.error("Error al guardar moto:", err);
-      setError(err.message || "Error al guardar la moto");
+      console.error("Error al guardar cliente:", err);
+      setError(err.message || "Error al guardar el cliente");
     } finally {
       setFormLoading(false);
     }
   };
 
-  const activeCount = motorBikes.filter((m) => m.isActive).length;
-  const totalCount = motorBikes.length;
+  const activeCount = clients.filter((c) => c.isActive).length;
+  const totalCount = clients.length;
 
   return (
     <div className="w-full min-h-full flex flex-col bg-[#09090b]">
@@ -95,15 +92,15 @@ function MotorBikeManagement() {
       <div className="px-4 pt-5 pb-4 border-b border-[#18181b]">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-4xl font-bold text-[#fafafa] m-0 mb-1 tracking-tight">Motos</h1>
+            <h1 className="text-4xl font-bold text-[#fafafa] m-0 mb-1 tracking-tight">Clientes</h1>
             {!loading && (
               <div className="flex items-center gap-2">
                 <span className="text-[14px] text-[#a1a1aa]">
-                  {totalCount === 0 ? "Sin unidades" : `${totalCount} unidad${totalCount !== 1 ? "es" : ""}`}
+                  {totalCount === 0 ? "Sin clientes" : `${totalCount} cliente${totalCount !== 1 ? "s" : ""}`}
                 </span>
                 {activeCount > 0 && (
                   <span className="text-[14px] font-medium bg-[#22c55e15] text-[#22c55e] px-2 py-0.5 rounded-full border border-[#22c55e20]">
-                    {activeCount} activa{activeCount !== 1 ? "s" : ""}
+                    {activeCount} activo{activeCount !== 1 ? "s" : ""}
                   </span>
                 )}
               </div>
@@ -113,7 +110,7 @@ function MotorBikeManagement() {
           {/* FAB */}
           <button
             onClick={handleAddNew}
-            aria-label="Agregar nueva moto"
+            aria-label="Agregar nuevo cliente"
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-semibold text-white cursor-pointer border-none transition-all duration-200 active:scale-95 shrink-0"
             style={{
               background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
@@ -123,7 +120,7 @@ function MotorBikeManagement() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
             </svg>
-            Nueva
+            Nuevo
           </button>
         </div>
       </div>
@@ -151,36 +148,23 @@ function MotorBikeManagement() {
 
       {/* List */}
       <div className="flex-1 px-4 py-4">
-        <MotorBikeList
-          motorBikes={motorBikes}
+        <ClientList
           clients={clients}
           onEdit={handleEdit}
-          onCalendar={handleCalendar}
-          loading={loading}
+          loading={loading && !showForm} // avoid loading skeleton when fetching full detail for edit
         />
       </div>
 
       {showForm && (
-        <MotorBikeForm
-          motorBike={editingMotorBike}
-          clients={clients}
+        <ClientForm
+          client={editingClient}
           onSave={handleSave}
           onCancel={handleCloseForm}
           loading={formLoading}
-        />
-      )}
-
-      {showCalendar && (
-        <CalendarioPagos
-          onClose={() => {
-            setShowCalendar(false);
-            setCalendarMotorBike(null);
-          }}
-          motorBike={calandarMotorBike}
         />
       )}
     </div>
   );
 }
 
-export default MotorBikeManagement;
+export default ClientsView;

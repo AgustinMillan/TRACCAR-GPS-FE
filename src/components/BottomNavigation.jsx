@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const NAV_ITEMS = [
   {
@@ -39,11 +40,41 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    path: "/clients",
+    matchPath: "/clients",
+    label: "Clientes",
+    icon: (active) => (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke={active ? "none" : "currentColor"} strokeWidth="1.8" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="9" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round"/>
+        <line x1="19" y1="8" x2="19" y2="14" strokeLinecap="round" strokeLinejoin="round"/>
+        <line x1="22" y1="11" x2="16" y2="11" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    path: "/users",
+    matchPath: "/users",
+    label: "Usuarios",
+    icon: (active) => (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke={active ? "none" : "currentColor"} strokeWidth="1.8" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
 ];
 
 function BottomNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+
+  const filteredNavItems = NAV_ITEMS.filter(item => {
+    if (user?.role === "SUPP" && item.path === "/reports") return false;
+    if (item.path === "/users" && user?.role !== "ADMIN") return false;
+    return true;
+  });
 
   return (
     <nav
@@ -53,14 +84,14 @@ function BottomNavigation() {
       {/* Blur backdrop */}
       <div className="glass border-t rounded-full border-[#27272a] px-2 sm:px-6 pt-2 pb-2">
         <div className="flex justify-around sm:gap-x-3 items-center max-w-md mx-auto">
-          {NAV_ITEMS.map((item) => {
+          {filteredNavItems.map((item) => {
             const active = location.pathname === item.matchPath;
             return (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`
-                  flex flex-col items-center justify-center gap-1 min-w-[60px] py-2 px-3 rounded-xl
+                  flex flex-col items-center justify-center gap-1 sm:min-w-[60px] py-2 px-3 rounded-xl
                   transition-all duration-200 cursor-pointer border-none touch-manipulation
                   [-webkit-tap-highlight-color:transparent]
                   ${active
@@ -73,7 +104,7 @@ function BottomNavigation() {
                 <span className={`transition-transform duration-200 ${active ? "scale-110" : "scale-100"}`}>
                   {item.icon(active)}
                 </span>
-                <span className={`text-xs sm:text-[14px] font-medium leading-none transition-all duration-200 ${active ? "opacity-100" : "opacity-60"}`}>
+                <span className={`text-xs hidden sm:block sm:text-[14px] font-medium leading-none transition-all duration-200 ${active ? "opacity-100" : "opacity-60"}`}>
                   {item.label}
                 </span>
               </button>
