@@ -192,7 +192,7 @@ function MapView() {
                 <Popup>
                   <div>
                     <strong style={{ display: "block", marginBottom: "6px", fontSize: "14px", color: "#fafafa", fontWeight: 600 }}>
-                      {bike.name}
+                      {bike.displayName || bike.name}
                     </strong>
                     <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
                       {[
@@ -346,7 +346,7 @@ function MapView() {
                     className="sr-only"
                   />
                   <span className={`text-[14px] font-medium transition-colors ${isSelected ? "text-[#fafafa]" : "text-[#a1a1aa]"}`}>
-                    {bike.name}
+                    {bike.displayName || bike.name}
                   </span>
                 </label>
               );

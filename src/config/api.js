@@ -33,3 +33,23 @@ export const getAuthHeadersMultipart = () => {
   }
 }
 
+/**
+ * Wrapper de fetch que detecta respuestas 401 (token vencido/inválido).
+ * Limpia la sesión del localStorage y redirige al login automáticamente.
+ * Úsalo como reemplazo directo de fetch() en los servicios autenticados.
+ */
+export const fetchWithAuth = async (url, options = {}) => {
+  const response = await fetch(url, options)
+
+  if (response.status === 401) {
+    // Limpiar sesión
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    // Redirigir al login (compatible sin React Router)
+    window.location.href = '/login'
+    // Lanzar error para que el caller corte la ejecución
+    throw new Error('Sesión expirada. Redirigiendo al login...')
+  }
+
+  return response
+}

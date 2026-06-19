@@ -1,4 +1,4 @@
-import { getApiUrl, getAuthHeaders } from "../config/api";
+import { getApiUrl, getAuthHeaders, fetchWithAuth } from "../config/api";
 
 const REPORTS_ENDPOINTS = {
   MONTHLY: "/api/reports/monthly",
@@ -11,7 +11,7 @@ export const getMonthlyReport = async (year, month) => {
     if (month) params.append("month", month);
 
     const url = `${getApiUrl(REPORTS_ENDPOINTS.MONTHLY)}?${params.toString()}`;
-    const response = await fetch(url, { headers: getAuthHeaders() });
+    const response = await fetchWithAuth(url, { headers: getAuthHeaders() });
 
     if (!response.ok) {
       throw new Error(`Error al obtener reporte: ${response.statusText}`);

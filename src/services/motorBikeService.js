@@ -1,4 +1,4 @@
-import { getApiUrl, API_CONFIG, getAuthHeaders } from '../config/api'
+import { getApiUrl, API_CONFIG, getAuthHeaders, fetchWithAuth } from '../config/api'
 
 const API_BASE_URL = getApiUrl(API_CONFIG.ENDPOINTS.MOTOR_BIKES)
 
@@ -8,12 +8,24 @@ const API_BASE_URL = getApiUrl(API_CONFIG.ENDPOINTS.MOTOR_BIKES)
  */
 export const getAllMotorBikes = async () => {
     try {
-        const response = await fetch(API_BASE_URL, { headers: getAuthHeaders() })
+        const response = await fetchWithAuth(API_BASE_URL, { headers: getAuthHeaders() })
         if (!response.ok) {
             throw new Error(`Error al obtener las motos: ${response.statusText}`)
         }
         const data = await response.json()
-        return data.data
+        const mappedData = data.data.map(bike => {
+            let displayName = bike.name
+            if (bike.client && bike.client.name) {
+                const ownerFirstName = bike.client.name.split(' ')[0]
+                displayName = `${bike.name} (${ownerFirstName})`
+            }
+            return {
+                ...bike,
+                originalName: bike.name,
+                displayName
+            }
+        })
+        return mappedData
     } catch (error) {
         console.error('Error en getAllMotorBikes:', error)
         throw error
@@ -27,7 +39,7 @@ export const getAllMotorBikes = async () => {
  */
 export const getMotorBikeById = async (id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${id}`, { headers: getAuthHeaders() })
+        const response = await fetchWithAuth(`${API_BASE_URL}/${id}`, { headers: getAuthHeaders() })
         if (!response.ok) {
             throw new Error(`Error al obtener la moto: ${response.statusText}`)
         }
@@ -46,7 +58,7 @@ export const getMotorBikeById = async (id) => {
  */
 export const createMotorBike = async (motorBikeData) => {
     try {
-        const response = await fetch(API_BASE_URL, {
+        const response = await fetchWithAuth(API_BASE_URL, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify(motorBikeData),
@@ -71,7 +83,7 @@ export const createMotorBike = async (motorBikeData) => {
  */
 export const updateMotorBike = async (id, motorBikeData) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${id}`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/${id}`, {
             method: 'PUT',
             headers: getAuthHeaders(),
             body: JSON.stringify(motorBikeData),
@@ -94,7 +106,7 @@ export const updateMotorBike = async (id, motorBikeData) => {
  */
 export const getMotorBikeDebts = async () => {
     try {
-        const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.MOTOR_BIKE_DEBTS), { headers: getAuthHeaders() })
+        const response = await fetchWithAuth(getApiUrl(API_CONFIG.ENDPOINTS.MOTOR_BIKE_DEBTS), { headers: getAuthHeaders() })
         if (!response.ok) {
             throw new Error(`Error al obtener reporte de deudas: ${response.statusText}`)
         }

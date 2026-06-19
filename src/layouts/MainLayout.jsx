@@ -8,9 +8,9 @@ const MainLayout = () => {
   const isMapView = location.pathname === "/map";
 
   return (
-    <div className="flex flex-col h-screen h-[100dvh] w-full overflow-hidden relative bg-[#09090b]">
+    <div className="flex flex-col min-h-[100dvh] w-full relative bg-[#09090b]">
       {/* Header */}
-      <header className="flex justify-between items-center px-4 sm:px-6 py-0 pt-[env(safe-area-inset-top)] bg-[#09090b] border-b border-[#27272a] z-[100] shrink-0 h-[52px] mt-[env(safe-area-inset-top)]">
+      <header className="sticky top-0 flex justify-between items-center px-4 sm:px-6 py-0 pt-[env(safe-area-inset-top)] bg-[#09090b] border-b border-[#27272a] z-[100] shrink-0 h-[52px] mt-[env(safe-area-inset-top)]">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-[#6366f1] flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(99,102,241,0.4)]">
@@ -48,10 +48,10 @@ const MainLayout = () => {
 
       {/* Main content */}
       <main
-        className={`flex-1 overflow-y-auto overflow-x-hidden bg-[#09090b] touch-pan-y relative w-full min-h-0 ${
+        className={`flex-1 w-full bg-[#09090b] ${
           isMapView
             ? "pb-0 overflow-hidden"
-            : "pb-[calc(72px+env(safe-area-inset-bottom))]"
+            : "pb-[calc(100px+env(safe-area-inset-bottom))]"
         }`}
       >
         <Outlet />

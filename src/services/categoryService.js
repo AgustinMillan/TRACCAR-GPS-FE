@@ -1,4 +1,4 @@
-import { getApiUrl, getAuthHeaders } from "../config/api";
+import { getApiUrl, getAuthHeaders, fetchWithAuth } from "../config/api";
 
 const CATEGORY_ENDPOINTS = {
   CATEGORIES: "/api/categories",
@@ -7,7 +7,7 @@ const CATEGORY_ENDPOINTS = {
 export const getCategories = async () => {
   try {
     const url = getApiUrl(CATEGORY_ENDPOINTS.CATEGORIES);
-    const response = await fetch(url, { headers: getAuthHeaders() });
+    const response = await fetchWithAuth(url, { headers: getAuthHeaders() });
     if (!response.ok) {
       throw new Error(`Error al obtener categorías: ${response.statusText}`);
     }
@@ -22,7 +22,7 @@ export const getCategories = async () => {
 export const createCategory = async (categoryData) => {
   try {
     const url = getApiUrl(CATEGORY_ENDPOINTS.CATEGORIES);
-    const response = await fetch(url, {
+    const response = await fetchWithAuth(url, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(categoryData),
@@ -41,7 +41,7 @@ export const createCategory = async (categoryData) => {
 export const updateCategory = async (id, categoryData) => {
   try {
     const url = getApiUrl(`${CATEGORY_ENDPOINTS.CATEGORIES}/${id}`);
-    const response = await fetch(url, {
+    const response = await fetchWithAuth(url, {
       method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(categoryData),

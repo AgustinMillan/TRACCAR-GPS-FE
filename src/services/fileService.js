@@ -1,4 +1,4 @@
-import { getApiUrl, API_CONFIG, getAuthHeaders, getAuthHeadersMultipart } from '../config/api'
+import { getApiUrl, API_CONFIG, getAuthHeaders, getAuthHeadersMultipart, fetchWithAuth } from '../config/api'
 
 const API_BASE_URL = getApiUrl(API_CONFIG.ENDPOINTS.FILES)
 
@@ -12,7 +12,7 @@ export const uploadFile = async (file) => {
         const formData = new FormData()
         formData.append('file', file)
 
-        const response = await fetch(`${API_BASE_URL}/upload`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/upload`, {
             method: 'POST',
             headers: getAuthHeadersMultipart(),
             body: formData, // Fetch automatically sets the multipart/form-data boundary
@@ -36,7 +36,7 @@ export const uploadFile = async (file) => {
  */
 export const getAllFiles = async () => {
     try {
-        const response = await fetch(API_BASE_URL, {
+        const response = await fetchWithAuth(API_BASE_URL, {
             headers: getAuthHeaders()
         })
         if (!response.ok) {
@@ -57,7 +57,7 @@ export const getAllFiles = async () => {
  */
 export const deleteFile = async (id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${id}`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/${id}`, {
             method: 'DELETE',
             headers: getAuthHeaders()
         })

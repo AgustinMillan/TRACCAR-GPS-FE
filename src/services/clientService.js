@@ -1,4 +1,4 @@
-import { getApiUrl, API_CONFIG, getAuthHeaders } from '../config/api'
+import { getApiUrl, API_CONFIG, getAuthHeaders, fetchWithAuth } from '../config/api'
 
 const API_BASE_URL = getApiUrl(API_CONFIG.ENDPOINTS.CLIENTS)
 
@@ -8,7 +8,7 @@ const API_BASE_URL = getApiUrl(API_CONFIG.ENDPOINTS.CLIENTS)
  */
 export const getAllClients = async () => {
     try {
-        const response = await fetch(API_BASE_URL, {
+        const response = await fetchWithAuth(API_BASE_URL, {
             headers: getAuthHeaders()
         })
         if (!response.ok) {
@@ -29,7 +29,7 @@ export const getAllClients = async () => {
  */
 export const getClientById = async (id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${id}`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/${id}`, {
             headers: getAuthHeaders()
         })
         if (!response.ok) {
@@ -50,7 +50,7 @@ export const getClientById = async (id) => {
  */
 export const createClient = async (clientData) => {
     try {
-        const response = await fetch(API_BASE_URL, {
+        const response = await fetchWithAuth(API_BASE_URL, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify(clientData),
@@ -75,7 +75,7 @@ export const createClient = async (clientData) => {
  */
 export const updateClient = async (id, clientData) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${id}`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/${id}`, {
             method: 'PUT',
             headers: getAuthHeaders(),
             body: JSON.stringify(clientData),

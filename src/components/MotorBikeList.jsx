@@ -75,7 +75,7 @@ function MotorBikeList({ motorBikes, clients, onEdit, onCalendar, loading }) {
             {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <h3 className="m-0 text-[14px] font-semibold text-[#fafafa] truncate">{moto.name}</h3>
+                <h3 className="m-0 text-[14px] font-semibold text-[#fafafa] truncate">{moto.displayName || moto.name}</h3>
                 <span
                   className={`shrink-0 text-[14px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     moto.isActive

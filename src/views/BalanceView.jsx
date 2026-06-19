@@ -367,7 +367,7 @@ function BalanceView() {
 
   const getMotorBikeName = (bikeId) => {
     const bike = motorBikes.find((b) => b.id === bikeId);
-    return bike ? bike.name : "—";
+    return bike ? (bike.displayName || bike.name) : "—";
   };
 
   const formatCurrency = (amount) =>
@@ -455,7 +455,7 @@ function BalanceView() {
             return (
               <div
                 className="rounded-xl overflow-hidden"
-                style={{ background: "#18181b", border: "1px solid rgba(239,68,68,0.25)", borderLeft: "3px solid #ef4444" }}
+                style={{ background: "#18181b", border: "1px solid rgba(239,68,68,0.25)" }}
               >
                 <div className="px-4 py-3 border-b border-[#27272a]">
                   <div className="flex items-center justify-between">
@@ -467,16 +467,19 @@ function BalanceView() {
                   </p>
                 </div>
                 <div className="px-4 py-3 flex flex-wrap gap-2">
-                  {motosConDeuda.map((moto) => (
+                  {motosConDeuda.map((moto) => {
+                    const bikeInfo = motorBikes.find(b => b.id === moto.id);
+                    const nameToDisplay = bikeInfo ? (bikeInfo.displayName || bikeInfo.name) : moto.name;
+                    return (
                     <div
                       key={moto.id}
                       className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
                       style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}
                     >
-                      <span className="text-[14px] font-semibold text-[#fca5a5]">{moto.name}</span>
+                      <span className="text-[14px] font-semibold text-[#fca5a5]">{nameToDisplay}</span>
                       <span className="text-[14px] text-[#ef4444] font-bold">{formatCurrency(moto.debt)}</span>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </div>
             );
@@ -591,7 +594,7 @@ function BalanceView() {
                 <label className={labelCls}>Moto</label>
                 <select value={filters.motorBikeId} onChange={(e) => setFilters({ ...filters, motorBikeId: e.target.value })} className={selectCls}>
                   <option value="">Todas</option>
-                  {motorBikes.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  {motorBikes.map((b) => <option key={b.id} value={b.id}>{b.displayName || b.name}</option>)}
                 </select>
               </div>
               <div className="flex flex-col gap-1 flex-1 min-w-[90px]">
@@ -668,7 +671,7 @@ function BalanceView() {
                                   <label className={labelCls}>Moto</label>
                                   <select value={editPaymentData.motorBikeId} onChange={(e) => setEditPaymentData({ ...editPaymentData, motorBikeId: e.target.value })} className={selectCls}>
                                     <option value="">Sin moto</option>
-                                    {motorBikes.map((bike) => <option key={bike.id} value={bike.id}>{bike.name}</option>)}
+                                    {motorBikes.map((bike) => <option key={bike.id} value={bike.id}>{bike.displayName || bike.name}</option>)}
                                   </select>
                                 </div>
                                 <div className="flex flex-col gap-1 flex-1 min-w-[90px]">
@@ -874,7 +877,7 @@ function BalanceView() {
               <label className={labelCls}>Moto (opcional)</label>
               <select value={transactionPaymentData.motorBikeId} onChange={(e) => setTransactionPaymentData({ ...transactionPaymentData, motorBikeId: e.target.value })} className={selectCls}>
                 <option value="">Sin moto</option>
-                {motorBikes.map((bike) => <option key={bike.id} value={bike.id}>{bike.name}</option>)}
+                {motorBikes.map((bike) => <option key={bike.id} value={bike.id}>{bike.displayName || bike.name}</option>)}
               </select>
             </div>
             <div>
@@ -954,7 +957,7 @@ function BalanceView() {
             <div>
               <p className="m-0 text-[14px] font-semibold text-[#fafafa] mb-2">¿Actualizar calendario?</p>
               <p className="m-0 text-[14px] text-[#a1a1aa] leading-relaxed">
-                ¿Deseas editar el calendario de <strong className="text-[#fafafa]">{promptMotorBike.name}</strong> para actualizar su estado de pago?
+                ¿Deseas editar el calendario de <strong className="text-[#fafafa]">{promptMotorBike.displayName || promptMotorBike.name}</strong> para actualizar su estado de pago?
               </p>
             </div>
             <div className="flex gap-3 w-full">

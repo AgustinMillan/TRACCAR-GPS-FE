@@ -1,4 +1,4 @@
-import { getApiUrl, getAuthHeaders } from "../config/api";
+import { getApiUrl, getAuthHeaders, fetchWithAuth } from "../config/api";
 
 // Endpoint para cuentas de balance
 const BALANCE_ENDPOINTS = {
@@ -15,7 +15,7 @@ const BALANCE_ENDPOINTS = {
 export const updatePayment = async (id, paymentData) => {
   try {
     const url = getApiUrl(`${BALANCE_ENDPOINTS.PAYMENTS}/${id}`);
-    const response = await fetch(url, {
+    const response = await fetchWithAuth(url, {
       method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(paymentData),
@@ -41,7 +41,7 @@ export const updatePayment = async (id, paymentData) => {
 export const updateAccount = async (id, accountData) => {
   try {
     const url = getApiUrl(`${BALANCE_ENDPOINTS.ACCOUNTS}/${id}`);
-    const response = await fetch(url, {
+    const response = await fetchWithAuth(url, {
       method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(accountData),
@@ -64,7 +64,7 @@ export const updateAccount = async (id, accountData) => {
 export const getAllAccounts = async () => {
   try {
     const url = getApiUrl(BALANCE_ENDPOINTS.ACCOUNTS);
-    const response = await fetch(url, { headers: getAuthHeaders() });
+    const response = await fetchWithAuth(url, { headers: getAuthHeaders() });
     if (!response.ok) {
       throw new Error(`Error al obtener cuentas: ${response.statusText}`);
     }
@@ -84,7 +84,7 @@ export const getAllAccounts = async () => {
 export const createAccount = async (accountData) => {
   try {
     const url = getApiUrl(BALANCE_ENDPOINTS.ACCOUNTS);
-    const response = await fetch(url, {
+    const response = await fetchWithAuth(url, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(accountData),
@@ -114,7 +114,7 @@ export const getAllPayments = async (page = 1, setTotalPages, filters = {}) => {
     if (filters.endDate) params.append("endDate", filters.endDate);
 
     const url = `${getApiUrl(BALANCE_ENDPOINTS.PAYMENTS)}?${params.toString()}`;
-    const response = await fetch(url, { headers: getAuthHeaders() });
+    const response = await fetchWithAuth(url, { headers: getAuthHeaders() });
     if (!response.ok) {
       throw new Error(`Error al obtener transacciones: ${response.statusText}`);
     }
@@ -135,7 +135,7 @@ export const getAllBills = async (page = 1, setTotal) => {
   try {
     const url =
       getApiUrl(BALANCE_ENDPOINTS.PAYMENTS) + "?type=egreso&page=" + page;
-    const response = await fetch(url, { headers: getAuthHeaders() });
+    const response = await fetchWithAuth(url, { headers: getAuthHeaders() });
     if (!response.ok) {
       throw new Error(`Error al obtener pagos: ${response.statusText}`);
     }
@@ -156,7 +156,7 @@ export const getAllBills = async (page = 1, setTotal) => {
 export const createPayment = async (paymentData) => {
   try {
     const url = getApiUrl(BALANCE_ENDPOINTS.PAYMENTS);
-    const response = await fetch(url, {
+    const response = await fetchWithAuth(url, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(paymentData),
@@ -180,7 +180,7 @@ export const createPayment = async (paymentData) => {
 export const createTransfer = async (transferData) => {
   try {
     const url = getApiUrl(`${BALANCE_ENDPOINTS.PAYMENTS}/transfer`);
-    const response = await fetch(url, {
+    const response = await fetchWithAuth(url, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(transferData),
