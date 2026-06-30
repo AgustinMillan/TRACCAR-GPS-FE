@@ -41,7 +41,8 @@ export const getAuthHeadersMultipart = () => {
 export const fetchWithAuth = async (url, options = {}) => {
   const response = await fetch(url, options)
 
-  if (response.status === 401) {
+  // El backend devuelve 401 si no hay token y 403 si el token expiró/es inválido
+  if (response.status === 401 || response.status === 403) {
     // Limpiar sesión
     localStorage.removeItem('token')
     localStorage.removeItem('user')
